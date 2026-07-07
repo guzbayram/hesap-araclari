@@ -497,7 +497,7 @@
         <div class="field">
           <label for="arsaAlani">Arsa Alanı</label>
           <div class="field-input">
-            <input type="number" id="arsaAlani" placeholder="0" min="0" step="any" value="1000">
+            <input type="text" inputmode="decimal" id="arsaAlani" placeholder="0" value="1000">
             <div class="unit">m²</div>
           </div>
         </div>
@@ -511,7 +511,7 @@
 
           <div id="yuzdeMode">
             <div class="field-input">
-              <input type="number" id="sahipYuzde" placeholder="0" min="0" max="100" step="any" value="35">
+              <input type="text" inputmode="decimal" id="sahipYuzde" placeholder="0" value="35">
               <div class="unit">%</div>
             </div>
           </div>
@@ -519,11 +519,11 @@
           <div id="daireMode" class="hidden">
             <div class="daire-row">
               <div class="field-input">
-                <input type="number" id="toplamDaire" placeholder="0" min="0" step="1" value="9">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" id="toplamDaire" placeholder="0" value="9">
                 <div class="unit">toplam daire sayısı</div>
               </div>
               <div class="field-input">
-                <input type="number" id="sahipDaire" placeholder="0" min="0" step="1" value="4">
+                <input type="text" inputmode="numeric" pattern="[0-9]*" id="sahipDaire" placeholder="0" value="4">
                 <div class="unit">arsa sahibine verilecek</div>
               </div>
             </div>
@@ -540,7 +540,7 @@
             <span class="hint">arsanın imar planındaki yapılaşma oranı</span>
           </label>
           <div class="field-input">
-            <input type="number" id="emsal" placeholder="0" min="0" step="any" value="1.5">
+            <input type="text" inputmode="decimal" id="emsal" placeholder="0" value="1.5">
             <div class="unit">emsal</div>
           </div>
         </div>
@@ -550,7 +550,7 @@
             <span class="hint">(emsal × arsa alanı × 1,30, brüt satılabilir alan — otomatik hesaplanır)</span>
           </label>
           <div class="field-input">
-            <input type="number" id="toplamInsaatAlani" placeholder="0" min="0" step="any" value="2000" readonly>
+            <input type="text" inputmode="decimal" id="toplamInsaatAlani" placeholder="0" value="2000" readonly>
             <div class="unit">m²</div>
           </div>
         </div>
@@ -560,7 +560,7 @@
             <span class="hint">(malzeme + işçilik, ruhsat/proje dahil tahmini)</span>
           </label>
           <div class="field-input">
-            <input type="number" id="birimMaliyet" placeholder="0" min="0" step="any" value="18000">
+            <input type="text" inputmode="decimal" id="birimMaliyet" placeholder="0" value="18000">
             <div class="unit">TL/m²</div>
           </div>
         </div>
@@ -666,6 +666,16 @@
     hesapla();
   });
 
+  // Türkçe klavyede ondalık ayırıcı olarak virgül girilebilir (ör. "1,5").
+  // Bunu JS'in anlayacağı noktalı sayıya çevirir.
+  function parseInput(val){
+    if (val === null || val === undefined) return NaN;
+    let s = String(val).trim();
+    if (s === '') return NaN;
+    s = s.replace(',', '.');
+    return parseFloat(s);
+  }
+
   function formatTL(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
@@ -681,27 +691,27 @@
 
   function getSahipYuzde(){
     if (currentMode === 'yuzde'){
-      let p = parseFloat(sahipYuzde.value);
+      let p = parseInput(sahipYuzde.value);
       if (isNaN(p)) p = 0;
       return Math.max(0, Math.min(100, p));
     } else {
-      const toplam = parseFloat(toplamDaire.value) || 0;
-      const sahip = parseFloat(sahipDaire.value) || 0;
+      const toplam = parseInput(toplamDaire.value) || 0;
+      const sahip = parseInput(sahipDaire.value) || 0;
       if (toplam <= 0) return 0;
       return Math.max(0, Math.min(100, (sahip / toplam) * 100));
     }
   }
 
   function hesapla(){
-    const arsa = parseFloat(arsaAlani.value) || 0;
+    const arsa = parseInput(arsaAlani.value) || 0;
     const sahipP = getSahipYuzde();
     const muteahhitP = 100 - sahipP;
 
-    const emsalDeger = parseFloat(emsal.value) || 0;
+    const emsalDeger = parseInput(emsal.value) || 0;
     const toplamAlan = arsa * emsalDeger * 1.30;
-    toplamInsaatAlani.value = toplamAlan ? toplamAlan.toFixed(1) : 0;
+    toplamInsaatAlani.value = toplamAlan ? toplamAlan.toFixed(1).replace('.', ',') : 0;
 
-    const birim = parseFloat(birimMaliyet.value) || 0;
+    const birim = parseInput(birimMaliyet.value) || 0;
 
     const muteahhitInsaatAlan = toplamAlan * (muteahhitP / 100);
     const sahipInsaatAlan = toplamAlan * (sahipP / 100);
@@ -742,8 +752,24 @@
     el('footerFormula').textContent = '%' + formatYuzde(sahipP) + ' sahip / %' + formatYuzde(muteahhitP) + ' müteahhit';
   }
 
-  [arsaAlani, emsal, sahipYuzde, toplamDaire, sahipDaire, birimMaliyet].forEach(inp => {
-    inp.addEventListener('input', hesapla);
+  // Ondalık alanlar: sadece rakam, virgül ve nokta kabul edilir (harf vb. girilemez).
+  const decimalInputs = [arsaAlani, emsal, sahipYuzde, birimMaliyet];
+  decimalInputs.forEach(inp => {
+    inp.addEventListener('input', () => {
+      const cleaned = inp.value.replace(/[^0-9.,]/g, '');
+      if (cleaned !== inp.value) inp.value = cleaned;
+      hesapla();
+    });
+  });
+
+  // Tam sayı alanlar: sadece rakam kabul edilir.
+  const integerInputs = [toplamDaire, sahipDaire];
+  integerInputs.forEach(inp => {
+    inp.addEventListener('input', () => {
+      const cleaned = inp.value.replace(/[^0-9]/g, '');
+      if (cleaned !== inp.value) inp.value = cleaned;
+      hesapla();
+    });
   });
 
   hesapla();
