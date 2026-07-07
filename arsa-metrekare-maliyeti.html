@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arsa Metrekare Maliyeti — Kat Karşılığı Hesaplama</title>
+<style>
+  :root{
+    --paper: #f6f4ee;
+    --ink: #1c2a24;
+    --blue: #2b4a6f;
+    --blue-deep: #17324f;
+    --line: #c9c2ac;
+    --accent: #b5651d;
+    --panel: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Courier New', ui-monospace, monospace;
+  }
+
+  body{
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: -1px -1px;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .sheet{
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--panel);
+    border: 2px solid var(--ink);
+    box-shadow: 8px 8px 0 rgba(28,42,36,0.15);
+  }
+
+  .titleblock{
+    border-bottom: 2px solid var(--ink);
+    padding: 22px 30px 18px;
+    position: relative;
+  }
+
+  .titleblock .eyebrow{
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+
+  .titleblock h1{
+    margin: 0;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: var(--blue-deep);
+  }
+
+  .titleblock p.sub{
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #55564d;
+    max-width: 62ch;
+    line-height: 1.5;
+  }
+
+  .titleblock::after{
+    content: "";
+    position: absolute;
+    top: 22px; right: 30px;
+    width: 46px; height: 46px;
+    border: 2px solid var(--blue-deep);
+    background:
+      repeating-linear-gradient(45deg, var(--blue-deep) 0 2px, transparent 2px 8px);
+    opacity: 0.85;
+  }
+
+  /* Taralı karenin yazıyla çakışmaması için başlık bloğuna sağdan pay bırak */
+  .titleblock{
+    padding-right: 100px;
+  }
+
+  /* Dar ekranlarda taralı kareyi tamamen gizle, payı geri al */
+  @media (max-width: 620px){
+    .titleblock::after{ display: none; }
+    .titleblock{ padding-right: 30px; }
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 0;
+  }
+
+  @media (max-width: 760px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 460px){
+    .result-row{ grid-template-columns: 1fr; }
+  }
+
+  .inputs{
+    padding: 28px 30px 30px;
+    border-right: 2px dashed var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 760px){
+    .inputs{ border-right: none; border-bottom: 2px dashed var(--line); }
+  }
+
+  .section-label{
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before{
+    content: "";
+    width: 18px; height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .field{
+    margin-bottom: 20px;
+  }
+
+  .field label{
+    display:block;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .field .hint{
+    font-size: 11px;
+    color: #8a8a7c;
+    display:block;
+    margin-top: 4px;
+  }
+
+  .field-input{
+    display:flex;
+    align-items: stretch;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .field-input input{
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 11px 12px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--blue-deep);
+    font-weight: 700;
+    min-width: 0;
+  }
+
+  .field-input input:focus{
+    outline: none;
+    background: #fffef8;
+  }
+
+  .field-input input[readonly]{
+    color: var(--blue);
+    background: #ece8dc;
+    cursor: default;
+  }
+
+  .field-input .unit{
+    padding: 11px 12px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    display:flex;
+    align-items:center;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+
+  .split-note{
+    display:flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6b6c60;
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #eef1ea;
+    border-left: 3px solid var(--blue);
+  }
+
+  .split-note strong{
+    color: var(--blue-deep);
+  }
+
+  /* Mode toggle */
+  .mode-toggle{
+    display: flex;
+    border: 1.5px solid var(--ink);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .mode-toggle button{
+    flex: 1;
+    padding: 10px 8px;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: var(--paper);
+    color: var(--ink);
+    border: none;
+    cursor: pointer;
+    border-right: 1.5px solid var(--ink);
+  }
+  .mode-toggle button:last-child{ border-right: none; }
+  .mode-toggle button.active{
+    background: var(--blue-deep);
+    color: var(--paper);
+  }
+
+  .daire-row{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hidden{ display: none !important; }
+
+  .results{
+    padding: 28px 30px 30px;
+    background: var(--blue-deep);
+    color: var(--paper);
+  }
+
+  .results .section-label{
+    color: #d9c9a3;
+  }
+  .results .section-label::before{
+    background: #d9c9a3;
+  }
+
+  .result-card{
+    border: 1px solid rgba(246,244,238,0.25);
+    padding: 16px 16px 14px;
+    margin-bottom: 14px;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .result-card .r-label{
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #a9c1d6;
+    margin: 0 0 10px;
+    line-height: 1.6;
+  }
+
+  .result-card .r-label-sub{
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: none;
+    color: #8fa8bd;
+    font-weight: normal;
+  }
+
+  .result-card .r-value{
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.15;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .result-card .r-value .cur{
+    font-size: 15px;
+    color: #a9c1d6;
+  }
+
+  .result-card.primary{
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, rgba(181,101,29,0.28), rgba(181,101,29,0.10));
+    padding: 22px 20px 20px;
+    box-shadow: 0 0 0 4px rgba(181,101,29,0.08);
+    position: relative;
+  }
+  .result-card.primary::before{
+    content: "★ ANA SONUÇ";
+    position: absolute;
+    top: -11px;
+    left: 16px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+  }
+  .result-card.primary .r-label{
+    color: #f2c48f;
+    font-size: 12px;
+  }
+  .result-card.primary .r-value{
+    color: #ffd7a3;
+    font-size: 38px;
+  }
+  .result-card.primary .r-value .cur{
+    font-size: 18px;
+    color: #f2c48f;
+  }
+
+  /* Ana kart içindeki alt blok (arsa dahil birim maliyet) */
+  .result-card.primary .r-sub-block{
+    border-top: 1px dashed rgba(242,196,143,0.35);
+  }
+  .result-card.primary .r-sub-block .r-label{
+    white-space: nowrap;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+  }
+  .result-card.primary .r-sub-block .r-value{
+    font-size: 38px;
+  }
+  .result-card.primary .r-sub-block .r-value .cur{
+    font-size: 18px;
+  }
+  @media (max-width: 400px){
+    .result-card.primary .r-sub-block .r-label{
+      font-size: 10px;
+      letter-spacing: 0.4px;
+    }
+  }
+
+  .r-sub-block{
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(246,244,238,0.25);
+  }
+  .r-sub-block .r-label{
+    margin: 0 0 10px;
+  }
+  .r-sub-block .r-value{
+    font-size: 26px;
+  }
+
+  .result-card.secondary .r-value{
+    font-size: 20px;
+  }
+
+  .result-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .result-row .result-card{
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .result-row .result-card .r-label{
+    flex: 0 0 auto;
+  }
+
+  .result-row .result-card .r-value{
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .row-group{
+    margin-bottom: 14px;
+  }
+
+  .breakdown{
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(246,244,238,0.3);
+    font-size: 12px;
+    line-height: 2;
+    color: #c7d4de;
+  }
+  .breakdown div{
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .breakdown span.v{
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .formula-note{
+    margin-top: 16px;
+    font-size: 11px;
+    color: #8fa8bd;
+    line-height: 1.6;
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+  }
+
+  .formula-note-left{
+    color: #6b6c60;
+    margin-top: auto;
+    padding-top: 14px;
+  }
+
+  .footer-strip{
+    border-top: 2px solid var(--ink);
+    padding: 12px 30px;
+    font-size: 11px;
+    color: #8a8a7c;
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+
+    <div class="titleblock">
+      <p class="eyebrow">Kat Karşılığı İnşaat · Paylaşım Hesabı</p>
+      <h1>Arsa Metrekare Maliyeti</h1>
+      <p class="sub">Arsa sahibi payını yüzde veya daire sayısı olarak girin — bir metrekare inşaatın müteahhide maliyetini hesaplayalım.</p>
+    </div>
+
+    <div class="grid">
+
+      <div class="inputs">
+        <p class="section-label">Girdiler</p>
+
+        <div class="field">
+          <label for="arsaAlani">Arsa Alanı</label>
+          <div class="field-input">
+            <input type="number" id="arsaAlani" placeholder="0" min="0" step="any" value="1000">
+            <div class="unit">m²</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Arsa Sahibi Payı Nasıl Girilecek?</label>
+          <div class="mode-toggle">
+            <button type="button" id="modeYuzdeBtn" class="active">Yüzde (%)</button>
+            <button type="button" id="modeDaireBtn">Daire Sayısı</button>
+          </div>
+
+          <div id="yuzdeMode">
+            <div class="field-input">
+              <input type="number" id="sahipYuzde" placeholder="0" min="0" max="100" step="any" value="35">
+              <div class="unit">%</div>
+            </div>
+          </div>
+
+          <div id="daireMode" class="hidden">
+            <div class="daire-row">
+              <div class="field-input">
+                <input type="number" id="toplamDaire" placeholder="0" min="0" step="1" value="9">
+                <div class="unit">toplam daire sayısı</div>
+              </div>
+              <div class="field-input">
+                <input type="number" id="sahipDaire" placeholder="0" min="0" step="1" value="4">
+                <div class="unit">arsa sahibine verilecek</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="split-note" id="splitNote">
+            Arsa sahibi payı: <strong id="sahipYuzdeGoster">%35</strong> ·
+            Müteahhit payı: <strong id="muteahhitYuzdeGoster">%65</strong>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="emsal">Emsal (Kat Alanı Katsayısı - KAKS)
+            <span class="hint">arsanın imar planındaki yapılaşma oranı</span>
+          </label>
+          <div class="field-input">
+            <input type="number" id="emsal" placeholder="0" min="0" step="any" value="1.5">
+            <div class="unit">emsal</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="toplamInsaatAlani">Arsaya Yapılabilecek Toplam İnşaat Alanı
+            <span class="hint">(emsal × arsa alanı × 1,30, brüt satılabilir alan — otomatik hesaplanır)</span>
+          </label>
+          <div class="field-input">
+            <input type="number" id="toplamInsaatAlani" placeholder="0" min="0" step="any" value="2000" readonly>
+            <div class="unit">m²</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="birimMaliyet">1 m² İnşaat Maliyeti
+            <span class="hint">(malzeme + işçilik, ruhsat/proje dahil tahmini)</span>
+          </label>
+          <div class="field-input">
+            <input type="number" id="birimMaliyet" placeholder="0" min="0" step="any" value="18000">
+            <div class="unit">TL/m²</div>
+          </div>
+        </div>
+
+        <p class="formula-note formula-note-left">
+          Formül: Birim arsa maliyeti = (Arsa sahibine kalan inşaat alanı × Birim inşaat maliyeti) ÷ Müteahhide kalan arsa payı (m²)
+        </p>
+      </div>
+
+      <div class="results">
+        <p class="section-label">Sonuç</p>
+
+        <div class="result-card primary">
+          <p class="r-label">Müteahhide Birim Arsa Maliyeti</p>
+          <p class="r-value" id="birimArsaMaliyeti">— <span class="cur">TL/m²</span></p>
+
+          <div class="r-sub-block">
+            <p class="r-label">Arsa Dahil 1 m² İnşaat Maliyeti</p>
+            <p class="r-value" id="arsaDahilBirim">— <span class="cur">TL/m²</span></p>
+          </div>
+        </div>
+
+        <div class="result-card">
+          <p class="r-label">Arsa Sahibi Payı Karşılığı</p>
+          <p class="r-value" id="toplamMaliyet">— <span class="cur">TL</span></p>
+
+          <div class="r-sub-block">
+            <p class="r-label">Toplam İnşaat Maliyeti</p>
+            <p class="r-value" id="projeToplamMaliyet">— <span class="cur">TL</span></p>
+          </div>
+        </div>
+
+        <div class="row-group result-row">
+          <div class="result-card secondary">
+            <p class="r-label">Müteahhide Kalan Arsa Payı</p>
+            <p class="r-value" id="muteahhitArsaPayi">— <span class="cur">m²</span></p>
+          </div>
+          <div class="result-card secondary">
+            <p class="r-label">Müteahhide Kalan İnşaat Alanı</p>
+            <p class="r-value" id="muteahhitInsaatAlanKarti">— <span class="cur">m²</span></p>
+          </div>
+        </div>
+
+        <div class="row-group result-row">
+          <div class="result-card secondary">
+            <p class="r-label">Arsa Sahibine Kalan Arsa Payı</p>
+            <p class="r-value" id="sahipArsaPayiKarti">— <span class="cur">m²</span></p>
+          </div>
+          <div class="result-card secondary">
+            <p class="r-label">Arsa Sahibine Kalan İnşaat Alanı</p>
+            <p class="r-value" id="sahipInsaatAlanKarti">— <span class="cur">m²</span></p>
+          </div>
+        </div>
+
+        <div class="breakdown">
+          <div><span>Arsa sahibi payı</span> <span class="v" id="bdSahipYuzde">%35</span></div>
+          <div><span>Müteahhit payı</span> <span class="v" id="bdMuteahhitYuzde">%65</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-strip">
+      <span>Tahmini hesaplama · resmi değerleme yerine geçmez</span>
+      <span id="footerFormula">%35 sahip / %65 müteahhit</span>
+    </div>
+
+  </div>
+
+<script>
+  const el = id => document.getElementById(id);
+
+  const arsaAlani = el('arsaAlani');
+  const emsal = el('emsal');
+  const sahipYuzde = el('sahipYuzde');
+  const toplamDaire = el('toplamDaire');
+  const sahipDaire = el('sahipDaire');
+  const toplamInsaatAlani = el('toplamInsaatAlani');
+  const birimMaliyet = el('birimMaliyet');
+
+  const modeYuzdeBtn = el('modeYuzdeBtn');
+  const modeDaireBtn = el('modeDaireBtn');
+  const yuzdeMode = el('yuzdeMode');
+  const daireMode = el('daireMode');
+
+  let currentMode = 'yuzde'; // 'yuzde' | 'daire'
+
+  modeYuzdeBtn.addEventListener('click', () => {
+    currentMode = 'yuzde';
+    modeYuzdeBtn.classList.add('active');
+    modeDaireBtn.classList.remove('active');
+    yuzdeMode.classList.remove('hidden');
+    daireMode.classList.add('hidden');
+    hesapla();
+  });
+
+  modeDaireBtn.addEventListener('click', () => {
+    currentMode = 'daire';
+    modeDaireBtn.classList.add('active');
+    modeYuzdeBtn.classList.remove('active');
+    daireMode.classList.remove('hidden');
+    yuzdeMode.classList.add('hidden');
+    hesapla();
+  });
+
+  function formatTL(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+  }
+  function formatM2(n){
+    if (!isFinite(n)) return '—';
+    return Math.round(n).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+  }
+  function formatYuzde(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+  }
+
+  function getSahipYuzde(){
+    if (currentMode === 'yuzde'){
+      let p = parseFloat(sahipYuzde.value);
+      if (isNaN(p)) p = 0;
+      return Math.max(0, Math.min(100, p));
+    } else {
+      const toplam = parseFloat(toplamDaire.value) || 0;
+      const sahip = parseFloat(sahipDaire.value) || 0;
+      if (toplam <= 0) return 0;
+      return Math.max(0, Math.min(100, (sahip / toplam) * 100));
+    }
+  }
+
+  function hesapla(){
+    const arsa = parseFloat(arsaAlani.value) || 0;
+    const sahipP = getSahipYuzde();
+    const muteahhitP = 100 - sahipP;
+
+    const emsalDeger = parseFloat(emsal.value) || 0;
+    const toplamAlan = arsa * emsalDeger * 1.30;
+    toplamInsaatAlani.value = toplamAlan ? toplamAlan.toFixed(1) : 0;
+
+    const birim = parseFloat(birimMaliyet.value) || 0;
+
+    const muteahhitInsaatAlan = toplamAlan * (muteahhitP / 100);
+    const sahipInsaatAlan = toplamAlan * (sahipP / 100);
+
+    const sahipArsaPayi = arsa * (sahipP / 100);
+    const muteahhitArsaPayi = arsa * (muteahhitP / 100);
+
+    // YENİ FORMÜL:
+    // Toplam maliyet = arsa sahibine kalan inşaat alanı × birim maliyet
+    // (müteahhidin, sahibe düşen daireleri inşa etmek için katlandığı maliyet;
+    //  bu bedel, arsanın müteahhide kalan kısmının karşılığıdır)
+    const toplamMaliyetTL = sahipInsaatAlan * birim;
+    const projeToplamMaliyetTL = toplamAlan * birim;
+
+    // Birim arsa maliyeti = toplam maliyet / müteahhide kalan arsa payı (m²)
+    const birimArsaTL = muteahhitArsaPayi > 0 ? toplamMaliyetTL / muteahhitArsaPayi : 0;
+
+    // Arsa dahil 1 m² inşaat maliyeti (müteahhit için):
+    // Müteahhit tüm binayı inşa eder (toplam alan × birim maliyet),
+    // karşılığında sadece kendi payındaki inşaat alanını alır.
+    // Arsa dahil birim maliyet = toplam proje maliyeti / müteahhide kalan inşaat alanı
+    const arsaDahilTL = muteahhitInsaatAlan > 0 ? projeToplamMaliyetTL / muteahhitInsaatAlan : 0;
+
+    el('sahipYuzdeGoster').textContent = '%' + formatYuzde(sahipP);
+    el('muteahhitYuzdeGoster').textContent = '%' + formatYuzde(muteahhitP);
+    el('bdSahipYuzde').textContent = '%' + formatYuzde(sahipP);
+    el('bdMuteahhitYuzde').textContent = '%' + formatYuzde(muteahhitP);
+
+    el('toplamMaliyet').innerHTML = formatTL(toplamMaliyetTL) + ' <span class="cur">TL</span>';
+    el('projeToplamMaliyet').innerHTML = formatTL(projeToplamMaliyetTL) + ' <span class="cur">TL</span>';
+    el('birimArsaMaliyeti').innerHTML = formatTL(birimArsaTL) + ' <span class="cur">TL/m²</span>';
+    el('arsaDahilBirim').innerHTML = formatTL(arsaDahilTL) + ' <span class="cur">TL/m²</span>';
+    el('muteahhitArsaPayi').innerHTML = formatM2(muteahhitArsaPayi) + ' <span class="cur">m²</span>';
+    el('sahipArsaPayiKarti').innerHTML = formatM2(sahipArsaPayi) + ' <span class="cur">m²</span>';
+    el('muteahhitInsaatAlanKarti').innerHTML = formatM2(muteahhitInsaatAlan) + ' <span class="cur">m²</span>';
+    el('sahipInsaatAlanKarti').innerHTML = formatM2(sahipInsaatAlan) + ' <span class="cur">m²</span>';
+
+    el('footerFormula').textContent = '%' + formatYuzde(sahipP) + ' sahip / %' + formatYuzde(muteahhitP) + ' müteahhit';
+  }
+
+  [arsaAlani, emsal, sahipYuzde, toplamDaire, sahipDaire, birimMaliyet].forEach(inp => {
+    inp.addEventListener('input', hesapla);
+  });
+
+  hesapla();
+</script>
+
+</body>
+</html>

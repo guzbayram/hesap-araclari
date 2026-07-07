@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hesap Araçları</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f4f2f9;
+    --ink: #1e1b2e;          /* koyu, net metin rengi */
+    --body: #44405a;         /* gövde metni — okunur gri-mor */
+    --card: #ffffff;
+
+    /* Pastel zeminler (açık) + net vurgular (koyu, kontrastlı) */
+    --p-lila:   #ece5fd;  --a-lila:   #5a3fc0;
+    --p-mint:   #d9f4e7;  --a-mint:   #0f7a56;
+    --p-seftali:#ffe6d4;  --a-seftali:#b4501a;
+    --p-gok:    #dcedfd;  --a-gok:    #1f5fa8;
+    --p-pudra:  #fddfec;  --a-pudra:  #b0316e;
+
+    --radius: 20px;
+    --shadow: 0 4px 16px rgba(60, 50, 110, 0.10);
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+  }
+
+  body{ min-height: 100vh; padding-bottom: 56px; }
+
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 18px;
+  }
+
+  /* ---------- Üst blok ---------- */
+  header{ padding: 32px 0 16px; }
+
+  .eyebrow{
+    font-family: 'Quicksand', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--a-lila);
+    margin: 0 0 8px;
+  }
+
+  h1{
+    font-family: 'Quicksand', sans-serif;
+    font-size: clamp(30px, 8vw, 40px);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+  }
+
+  .sub{
+    margin: 12px 0 0;
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--body);
+    max-width: 52ch;
+  }
+
+  /* ---------- Arama (yapışkan) ---------- */
+  .searchbar{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 12px 0;
+    background: linear-gradient(var(--bg) 80%, transparent);
+  }
+
+  .search-pill{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 2px solid #cfc8e6;
+    border-radius: 999px;
+    padding: 13px 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .search-pill svg{
+    flex: none;
+    width: 20px; height: 20px;
+    stroke: var(--body);
+  }
+
+  .search-pill input{
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px;           /* 16px: iOS'ta zoom yapmaz, net okunur */
+    font-weight: 500;
+    color: var(--ink);
+    min-width: 0;
+  }
+  .search-pill input:focus{ outline: none; }
+  .search-pill input::placeholder{ color: #8d87a8; font-weight: 400; }
+
+  .search-pill:focus-within{ border-color: var(--a-lila); }
+
+  .count-badge{
+    flex: none;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--a-lila);
+    border-radius: 999px;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Kart listesi ---------- */
+  .tool-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 8px 0 20px;
+  }
+
+  @media (min-width: 600px){
+    .tool-grid{ grid-template-columns: 1fr 1fr; }
+  }
+
+  .tool-card{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid #e6e2f2;
+    border-left: 6px solid var(--tint-strong, var(--a-lila));
+    transition: transform .15s ease, border-color .15s ease;
+  }
+
+  .tool-card:active{ transform: scale(0.98); }
+
+  @media (hover: hover){
+    .tool-card:hover{
+      transform: translateY(-3px);
+      border-color: var(--tint-strong, var(--a-lila));
+    }
+  }
+
+  .tool-card:focus-visible{
+    outline: 3px solid var(--tint-strong, var(--a-lila));
+    outline-offset: 3px;
+  }
+
+  .card-top{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .icon-dot{
+    flex: none;
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: var(--tint, var(--p-lila));
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+  }
+
+  .tag{
+    font-family: 'Quicksand', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--tint-strong, var(--a-lila));
+    background: var(--tint, var(--p-lila));
+    border: 1.5px solid var(--tint-strong, var(--a-lila));
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+
+  .tool-card h3{
+    margin: 0;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+
+  .tool-card p{
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--body);
+  }
+
+  .go{
+    margin-top: auto;
+    padding-top: 6px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--tint-strong, var(--a-lila));
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .go::after{
+    content: "→";
+    font-size: 17px;
+    transition: transform .15s ease;
+  }
+  @media (hover: hover){
+    .tool-card:hover .go::after{ transform: translateX(4px); }
+  }
+
+  /* Placeholder kart */
+  .tool-card.placeholder{
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: transparent;
+    border: 2px dashed #beb7d9;
+    border-left: 2px dashed #beb7d9;
+    box-shadow: none;
+    color: #6f6a8a;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 120px;
+  }
+  .tool-card.placeholder .plus{
+    font-size: 28px;
+    display: block;
+    margin-bottom: 4px;
+    color: #beb7d9;
+  }
+  .tool-card.placeholder:hover{ transform: none; border-color: #beb7d9; }
+
+  .empty-state{
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 46px 10px;
+    color: var(--body);
+    font-size: 15px;
+  }
+  .empty-state .big{
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* ---------- Ziyaretçi sayacı ---------- */
+  .stats-strip{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    background: var(--card);
+    border: 2px solid #e6e2f2;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 12px;
+    margin: 6px 0 14px;
+    text-align: center;
+  }
+
+  .stat{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stat-num{
+    font-family: 'Quicksand', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--a-lila);
+  }
+  .stat:nth-child(2) .stat-num{ color: var(--a-mint); }
+  .stat:nth-child(3) .stat-num{ color: var(--a-seftali); }
+  .stat:nth-child(4) .stat-num{ color: var(--a-gok); }
+
+  .stat-lbl{
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #6f6a8a;
+  }
+
+  /* ---------- Alt not ---------- */
+  .footnote{
+    font-size: 13px;
+    color: #6f6a8a;
+    line-height: 1.7;
+    text-align: center;
+    padding: 8px 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <header>
+      <p class="eyebrow">Kişisel Araç Kütüphanesi</p>
+      <h1>Hesap Araçları</h1>
+      <p class="sub">İnşaat, arsa ve kat karşılığı hesaplamaları için hazırlanan tek sayfalık araçlar. İhtiyaç oldukça yenileri eklenecek.</p>
+    </header>
+
+    <div class="searchbar">
+      <div class="search-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.5" y2="16.5"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Araç ara... (arsa, maliyet, emsal)">
+        <span class="count-badge" id="countBadge">0 araç</span>
+      </div>
+    </div>
+
+    <div class="tool-grid" id="toolGrid">
+      <!-- Araçlar JS ile buraya render edilir -->
+    </div>
+
+    <div class="stats-strip" id="statsStrip">
+      <div class="stat"><span class="stat-num" id="stGun">–</span><span class="stat-lbl">Bugün</span></div>
+      <div class="stat"><span class="stat-num" id="stAy">–</span><span class="stat-lbl">Bu Ay</span></div>
+      <div class="stat"><span class="stat-num" id="stYil">–</span><span class="stat-lbl">Bu Yıl</span></div>
+      <div class="stat"><span class="stat-num" id="stToplam">–</span><span class="stat-lbl">Toplam</span></div>
+    </div>
+
+    <p class="footnote">
+      Tahmini hesaplamalardır · resmi değerleme veya mühendislik raporu yerine geçmez.<br>
+      Yeni araç eklemek için koddaki TOOLS listesine bir satır ekleyin.
+    </p>
+
+  </div>
+
+<script>
+  /* ============================================================
+     ARAÇ LİSTESİ
+     Yeni bir hesaplama aracı eklemek için bu diziye bir obje ekleyin:
+
+     {
+       title: "Görünecek Başlık",
+       desc:  "Kısa açıklama (1-2 cümle).",
+       tag:   "Kategori Etiketi",
+       icon:  "🏗️",                    // karta konacak emoji (isteğe bağlı)
+       href:  "dosya-adi.html"          // aynı klasördeki html dosyası
+     }
+
+     En son eklenen en üstte görünsün istiyorsanız dizinin başına ekleyin.
+     Pastel renkler kartlara otomatik ve sırayla atanır.
+  ============================================================ */
+  const TOOLS = [
+    {
+      title: "Arsa Metrekare Maliyeti",
+      desc: "Kat karşılığı inşaatta arsa sahibi payı, emsal ve birim inşaat maliyetine göre müteahhide düşen arsa metrekare maliyetini hesaplar.",
+      tag: "Kat Karşılığı",
+      icon: "🏗️",
+      href: "arsa-metrekare-maliyeti.html"
+    }
+  ];
+
+  /* Pastel tema çiftleri: [açık zemin, koyu vurgu] */
+  const TINTS = [
+    ['var(--p-lila)',   'var(--a-lila)'],
+    ['var(--p-mint)',   'var(--a-mint)'],
+    ['var(--p-seftali)','var(--a-seftali)'],
+    ['var(--p-gok)',    'var(--a-gok)'],
+    ['var(--p-pudra)',  'var(--a-pudra)']
+  ];
+
+  const grid = document.getElementById('toolGrid');
+  const searchInput = document.getElementById('searchInput');
+  const countBadge = document.getElementById('countBadge');
+
+  function render(list){
+    grid.innerHTML = '';
+
+    if (list.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = '<span class="big">🔍</span>Aramanızla eşleşen bir araç bulunamadı.';
+      grid.appendChild(empty);
+    } else {
+      list.forEach(tool => {
+        const [tint, strong] = TINTS[TOOLS.indexOf(tool) % TINTS.length];
+        const a = document.createElement('a');
+        a.className = 'tool-card';
+        a.href = tool.href;
+        a.style.setProperty('--tint', tint);
+        a.style.setProperty('--tint-strong', strong);
+        a.innerHTML = `
+          <div class="card-top">
+            <span class="icon-dot">${tool.icon || '🧮'}</span>
+            <span class="tag">${tool.tag}</span>
+          </div>
+          <h3>${tool.title}</h3>
+          <p>${tool.desc}</p>
+          <span class="go">Aracı aç</span>
+        `;
+        grid.appendChild(a);
+      });
+    }
+
+    // Yeni araç ekleme ipucu kartı her zaman en sonda
+    const ph = document.createElement('div');
+    ph.className = 'tool-card placeholder';
+    ph.innerHTML = `<span><span class="plus">+</span>Yeni araç ekledikçe<br>burada görünecek</span>`;
+    grid.appendChild(ph);
+
+    countBadge.textContent = TOOLS.length + ' araç';
+  }
+
+  function applyFilter(){
+    const q = searchInput.value.trim().toLocaleLowerCase('tr-TR');
+    if (!q){
+      render(TOOLS);
+      return;
+    }
+    const filtered = TOOLS.filter(t =>
+      t.title.toLocaleLowerCase('tr-TR').includes(q) ||
+      t.desc.toLocaleLowerCase('tr-TR').includes(q) ||
+      t.tag.toLocaleLowerCase('tr-TR').includes(q)
+    );
+    render(filtered);
+  }
+
+  searchInput.addEventListener('input', applyFilter);
+
+  render(TOOLS);
+
+  /* ============================================================
+     ZİYARETÇİ SAYACI (Abacus - ücretsiz sayaç API)
+     ÖNEMLİ: Aşağıdaki NAMESPACE değerini kendi sitenize göre
+     değiştirin (örn: "kullaniciadi.github.io"). Bu ad size özel
+     olmalı, yoksa başkasının sayacıyla karışabilir.
+
+     Mantık:
+     - Aynı tarayıcı aynı gün içinde tekrar girerse sayaç artmaz
+       (localStorage ile işaretlenir), sadece mevcut değerler okunur.
+     - Gün / ay / yıl / toplam için ayrı sayaçlar tutulur.
+  ============================================================ */
+  (function(){
+    const NAMESPACE = 'guzbayram-hesap-araclari';
+    const API = 'https://abacus.jasoncameron.dev';
+
+    const now = new Date();
+    const y  = now.getFullYear();
+    const m  = String(now.getMonth() + 1).padStart(2, '0');
+    const d  = String(now.getDate()).padStart(2, '0');
+
+    const keys = {
+      stGun:    'gun-'  + y + '-' + m + '-' + d,
+      stAy:     'ay-'   + y + '-' + m,
+      stYil:    'yil-'  + y,
+      stToplam: 'toplam'
+    };
+
+    const visitFlag = 'ziyaret-' + y + '-' + m + '-' + d;
+    let firstVisitToday = false;
+    try{
+      firstVisitToday = !localStorage.getItem(visitFlag);
+      if (firstVisitToday) localStorage.setItem(visitFlag, '1');
+    }catch(e){ /* gizli mod vs. — sorun değil, sadece okur */ }
+
+    const fmt = new Intl.NumberFormat('tr-TR');
+
+    Object.entries(keys).forEach(([elId, key]) => {
+      const mode = firstVisitToday ? 'hit' : 'get';
+      fetch(API + '/' + mode + '/' + NAMESPACE + '/' + key)
+        .then(r => {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
+        .then(data => {
+          document.getElementById(elId).textContent = fmt.format(data.value);
+        })
+        .catch(() => {
+          // "get" edilen sayaç henüz yoksa 0 göster
+          document.getElementById(elId).textContent = '0';
+        });
+    });
+  })();
+</script>
+
+</body>
+</html>
