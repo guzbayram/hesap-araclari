@@ -88,6 +88,30 @@
     padding-right: 100px;
   }
 
+  /* Ana sayfaya dönüş bağlantısı */
+  .back-link{
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--blue);
+    border: 1.5px solid var(--blue);
+    background: rgba(43,74,111,0.06);
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    transition: background 0.12s ease;
+  }
+  .back-link:hover{
+    background: var(--blue);
+    color: #fff;
+  }
+  .back-link:focus-visible{
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   /* Dar ekranlarda taralı kareyi tamamen gizle, payı geri al */
   @media (max-width: 620px){
     .titleblock::after{ display: none; }
@@ -300,6 +324,15 @@
     color: #a9c1d6;
   }
 
+  /* Kart içindeki tüm yazılar ortalı */
+  .result-card .r-label{
+    text-align: center;
+  }
+  .result-card .r-value{
+    justify-content: center;
+    text-align: center;
+  }
+
   .result-card.primary{
     border: 2px solid var(--accent);
     background: linear-gradient(135deg, rgba(181,101,29,0.28), rgba(181,101,29,0.10));
@@ -450,6 +483,7 @@
   <div class="sheet">
 
     <div class="titleblock">
+      <a href="./" class="back-link">← Tüm Araçlar</a>
       <p class="eyebrow">Kat Karşılığı İnşaat · Paylaşım Hesabı</p>
       <h1>Arsa Metrekare Maliyeti</h1>
       <p class="sub">Arsa sahibi payını yüzde veya daire sayısı olarak girin — bir metrekare inşaatın müteahhide maliyetini hesaplayalım.</p>
