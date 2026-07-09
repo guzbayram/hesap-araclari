@@ -653,14 +653,14 @@
             <span class="hint">arsanın imar planındaki yapılaşma oranı</span>
           </label>
           <div class="field-input">
-            <input type="text" inputmode="decimal" id="emsal" placeholder="0" value="1.5">
+            <input type="text" inputmode="decimal" id="emsal" placeholder="0" value="1.05">
             <div class="unit">emsal</div>
           </div>
         </div>
 
         <div class="field">
           <label for="toplamInsaatAlani">Arsaya Yapılabilecek Toplam İnşaat Alanı
-            <span class="hint">(emsal × arsa alanı × 1,05, brüt satılabilir alan — otomatik hesaplanır)</span>
+            <span class="hint">(emsal × arsa alanı × 1,30, brüt satılabilir alan — otomatik hesaplanır)</span>
           </label>
           <div class="field-input">
             <input type="text" inputmode="decimal" id="toplamInsaatAlani" placeholder="0" value="2000" readonly>
@@ -873,7 +873,7 @@
     const muteahhitP = 100 - sahipP;
 
     const emsalDeger = parseInput(emsal.value) || 0;
-    const toplamAlan = arsa * emsalDeger * 1.05;
+    const toplamAlan = arsa * emsalDeger * 1.30;
     toplamInsaatAlani.value = toplamAlan ? toplamAlan.toFixed(1).replace('.', ',') : 0;
 
     const birim = parseInput(birimMaliyet.value) || 0;
@@ -940,7 +940,7 @@
   // ---------- Kalıcı hafıza: kullanıcının en son girdiği değerler ----------
   // Yeni bir değer girilene kadar, sayfa her açıldığında son girilen
   // veriler otomatik olarak geri yüklenir.
-  const STORAGE_KEY = 'arsa-metrekare-maliyeti:son-girdiler';
+  const STORAGE_KEY = 'arsa-metrekare-maliyeti:son-girdiler:v2';
 
   function toplaMevcutGirdiler(){
     return {
