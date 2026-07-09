@@ -132,6 +132,78 @@
     .result-row{ grid-template-columns: 1fr; }
   }
 
+  /* ---------- Mobil sekmeler (Girdiler / Sonuçlar) ---------- */
+  .mobile-tabs{
+    display: none;
+  }
+
+  .goto-btn{
+    display: none;
+  }
+
+  @media (max-width: 760px){
+    .mobile-tabs{
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-top: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      background: var(--paper);
+    }
+    .mobile-tabs button{
+      flex: 1;
+      padding: 13px 8px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--paper);
+      color: var(--ink);
+      border: none;
+      cursor: pointer;
+    }
+    .mobile-tabs button:first-child{
+      border-right: 2px solid var(--ink);
+    }
+    .mobile-tabs button.active{
+      background: var(--blue-deep);
+      color: var(--paper);
+    }
+
+    .inputs.mobile-hide,
+    .results.mobile-hide{
+      display: none !important;
+    }
+
+    .goto-btn{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: var(--blue-deep);
+      color: var(--paper);
+      border: none;
+      cursor: pointer;
+    }
+    .goto-btn.back{
+      background: var(--paper);
+      color: var(--blue-deep);
+      border: 1.5px solid var(--blue-deep);
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+  }
+
   .inputs{
     padding: 28px 30px 30px;
     border-right: 2px dashed var(--line);
@@ -525,9 +597,14 @@
       <p class="sub">Arsa sahibi payını yüzde veya daire sayısı olarak girin — bir metrekare inşaatın müteahhide maliyetini hesaplayalım.</p>
     </div>
 
+    <div class="mobile-tabs" id="mobileTabs">
+      <button type="button" id="tabGirdilerBtn" class="active">1. Girdiler</button>
+      <button type="button" id="tabSonucBtn">2. Sonuçlar</button>
+    </div>
+
     <div class="grid">
 
-      <div class="inputs">
+      <div class="inputs" id="inputsPanel">
         <p class="section-label">Girdiler</p>
 
         <div class="field">
@@ -583,7 +660,7 @@
 
         <div class="field">
           <label for="toplamInsaatAlani">Arsaya Yapılabilecek Toplam İnşaat Alanı
-            <span class="hint">(emsal × arsa alanı × 1,30, brüt satılabilir alan — otomatik hesaplanır)</span>
+            <span class="hint">(emsal × arsa alanı × 1,05, brüt satılabilir alan — otomatik hesaplanır)</span>
           </label>
           <div class="field-input">
             <input type="text" inputmode="decimal" id="toplamInsaatAlani" placeholder="0" value="2000" readonly>
@@ -604,9 +681,12 @@
         <p class="formula-note formula-note-left">
           Formül: Birim arsa maliyeti = (Arsa sahibine kalan inşaat alanı × Birim inşaat maliyeti) ÷ Müteahhide kalan arsa payı (m²)
         </p>
+
+        <button type="button" class="goto-btn" id="gotoResultsBtn">Sonuçları Gör →</button>
       </div>
 
-      <div class="results">
+      <div class="results" id="resultsPanel">
+        <button type="button" class="goto-btn back" id="gotoInputsBtn">← Girdilere Dön</button>
         <p class="section-label">Sonuç</p>
 
         <div class="result-card primary">
@@ -702,6 +782,55 @@
     hesapla();
   });
 
+  // ---------- Mobil: Girdiler / Sonuçlar sekmeleri ----------
+  const tabGirdilerBtn = el('tabGirdilerBtn');
+  const tabSonucBtn = el('tabSonucBtn');
+  const inputsPanel = el('inputsPanel');
+  const resultsPanel = el('resultsPanel');
+  const gotoResultsBtn = el('gotoResultsBtn');
+  const gotoInputsBtn = el('gotoInputsBtn');
+  const mobileTabs = el('mobileTabs');
+
+  function showGirdiler(){
+    tabGirdilerBtn.classList.add('active');
+    tabSonucBtn.classList.remove('active');
+    inputsPanel.classList.remove('mobile-hide');
+    resultsPanel.classList.add('mobile-hide');
+    if (window.innerWidth <= 760){
+      window.scrollTo({ top: mobileTabs.offsetTop, behavior: 'smooth' });
+    }
+  }
+
+  function showSonuclar(){
+    tabSonucBtn.classList.add('active');
+    tabGirdilerBtn.classList.remove('active');
+    resultsPanel.classList.remove('mobile-hide');
+    inputsPanel.classList.add('mobile-hide');
+    if (window.innerWidth <= 760){
+      window.scrollTo({ top: mobileTabs.offsetTop, behavior: 'smooth' });
+    }
+  }
+
+  tabGirdilerBtn.addEventListener('click', showGirdiler);
+  tabSonucBtn.addEventListener('click', showSonuclar);
+  gotoResultsBtn.addEventListener('click', showSonuclar);
+  gotoInputsBtn.addEventListener('click', showGirdiler);
+
+  // Mobilde başlangıçta Girdiler sayfası açık gelsin
+  showGirdiler();
+
+  // Ekran genişliği masaüstüne büyürse (ör. tablet döndürme) her iki panel
+  // de görünür kalsın; tekrar mobil genişliğe dönülünce son seçili sekme geçerli olur.
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 760){
+      inputsPanel.classList.remove('mobile-hide');
+      resultsPanel.classList.remove('mobile-hide');
+    } else {
+      if (tabGirdilerBtn.classList.contains('active')) showGirdiler();
+      else showSonuclar();
+    }
+  });
+
   // Türkçe klavyede ondalık ayırıcı olarak virgül girilebilir (ör. "1,5").
   // Bunu JS'in anlayacağı noktalı sayıya çevirir.
   function parseInput(val){
@@ -744,7 +873,7 @@
     const muteahhitP = 100 - sahipP;
 
     const emsalDeger = parseInput(emsal.value) || 0;
-    const toplamAlan = arsa * emsalDeger * 1.30;
+    const toplamAlan = arsa * emsalDeger * 1.05;
     toplamInsaatAlani.value = toplamAlan ? toplamAlan.toFixed(1).replace('.', ',') : 0;
 
     const birim = parseInput(birimMaliyet.value) || 0;
@@ -808,7 +937,69 @@
     });
   });
 
-  hesapla();
+  // ---------- Kalıcı hafıza: kullanıcının en son girdiği değerler ----------
+  // Yeni bir değer girilene kadar, sayfa her açıldığında son girilen
+  // veriler otomatik olarak geri yüklenir.
+  const STORAGE_KEY = 'arsa-metrekare-maliyeti:son-girdiler';
+
+  function toplaMevcutGirdiler(){
+    return {
+      arsaAlani: arsaAlani.value,
+      emsal: emsal.value,
+      sahipYuzde: sahipYuzde.value,
+      toplamDaire: toplamDaire.value,
+      sahipDaire: sahipDaire.value,
+      birimMaliyet: birimMaliyet.value,
+      currentMode: currentMode
+    };
+  }
+
+  let kaydetZamanlayici = null;
+  function girdileriKaydet(){
+    clearTimeout(kaydetZamanlayici);
+    kaydetZamanlayici = setTimeout(async () => {
+      try {
+        await window.storage.set(STORAGE_KEY, JSON.stringify(toplaMevcutGirdiler()), false);
+      } catch (e) {
+        // Kaydetme başarısız olsa da hesap makinesi çalışmaya devam eder.
+      }
+    }, 250);
+  }
+
+  async function girdileriYukle(){
+    try {
+      const kayit = await window.storage.get(STORAGE_KEY, false);
+      if (!kayit || !kayit.value) return;
+      const veri = JSON.parse(kayit.value);
+
+      if (veri.arsaAlani !== undefined) arsaAlani.value = veri.arsaAlani;
+      if (veri.emsal !== undefined) emsal.value = veri.emsal;
+      if (veri.sahipYuzde !== undefined) sahipYuzde.value = veri.sahipYuzde;
+      if (veri.toplamDaire !== undefined) toplamDaire.value = veri.toplamDaire;
+      if (veri.sahipDaire !== undefined) sahipDaire.value = veri.sahipDaire;
+      if (veri.birimMaliyet !== undefined) birimMaliyet.value = veri.birimMaliyet;
+
+      if (veri.currentMode === 'daire'){
+        modeDaireBtn.click();
+      } else {
+        currentMode = 'yuzde';
+      }
+    } catch (e) {
+      // Daha önce kayıt yoksa veya hafızaya ulaşılamıyorsa varsayılan
+      // değerlerle (HTML'deki value'lar) devam edilir.
+    } finally {
+      hesapla();
+    }
+  }
+
+  // Tüm giriş alanlarındaki değişiklikleri kalıcı hafızaya kaydet
+  [arsaAlani, emsal, sahipYuzde, toplamDaire, sahipDaire, birimMaliyet].forEach(inp => {
+    inp.addEventListener('input', girdileriKaydet);
+  });
+  modeYuzdeBtn.addEventListener('click', girdileriKaydet);
+  modeDaireBtn.addEventListener('click', girdileriKaydet);
+
+  girdileriYukle();
 </script>
 
 </body>
