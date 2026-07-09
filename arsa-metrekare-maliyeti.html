@@ -221,6 +221,19 @@
     letter-spacing: 0.5px;
   }
 
+  /* Etiketin girişin altına (yanına değil) alındığı varyant — uzun etiketler için */
+  .field-input.stacked{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .field-input.stacked .unit{
+    white-space: normal;
+    border-top: 1.5px solid var(--ink);
+    justify-content: center;
+    text-align: center;
+    padding: 8px 10px;
+  }
+
   .split-note{
     display:flex;
     justify-content: space-between;
@@ -239,13 +252,15 @@
   /* Mode toggle */
   .mode-toggle{
     display: flex;
+    align-items: stretch;
     border: 1.5px solid var(--ink);
     margin-bottom: 18px;
     overflow: hidden;
   }
   .mode-toggle button{
     flex: 1;
-    padding: 10px 8px;
+    min-width: 0;
+    padding: 10px 6px;
     font-family: inherit;
     font-size: 12px;
     letter-spacing: 0.5px;
@@ -255,11 +270,32 @@
     border: none;
     cursor: pointer;
     border-right: 1.5px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.2;
   }
   .mode-toggle button:last-child{ border-right: none; }
   .mode-toggle button.active{
     background: var(--blue-deep);
     color: var(--paper);
+  }
+
+  @media (max-width: 400px){
+    .mode-toggle button{
+      font-size: 10px;
+      letter-spacing: 0.2px;
+      padding: 10px 3px;
+    }
+  }
+  @media (max-width: 340px){
+    .mode-toggle button{
+      font-size: 9px;
+      padding: 9px 2px;
+    }
   }
 
   .daire-row{
@@ -518,11 +554,11 @@
 
           <div id="daireMode" class="hidden">
             <div class="daire-row">
-              <div class="field-input">
+              <div class="field-input stacked">
                 <input type="text" inputmode="numeric" pattern="[0-9]*" id="toplamDaire" placeholder="0" value="9">
                 <div class="unit">toplam daire sayısı</div>
               </div>
-              <div class="field-input">
+              <div class="field-input stacked">
                 <input type="text" inputmode="numeric" pattern="[0-9]*" id="sahipDaire" placeholder="0" value="4">
                 <div class="unit">arsa sahibine verilecek</div>
               </div>
