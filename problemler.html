@@ -1440,6 +1440,7 @@
         'Uğur', 'Vera', 'Yalın', 'Zara'
     ];
     const RECENT_NAME_LIMIT = 40;
+    const RECENT_PATTERN_LIMIT = 12;
 
     function loadRecentNameGroups() {
         try {
@@ -1499,6 +1500,36 @@
 
         saveRecentNameGroups([...recentGroups, selected]);
         return selected;
+    }
+
+    function loadRecentPatterns(topicKey) {
+        try {
+            const saved = JSON.parse(localStorage.getItem(`tyt_problemler_recent_patterns_${topicKey}`) || '[]');
+            return Array.isArray(saved) ? saved.filter(pattern => typeof pattern === 'string') : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function saveRecentPatterns(topicKey, patterns) {
+        localStorage.setItem(
+            `tyt_problemler_recent_patterns_${topicKey}`,
+            JSON.stringify(patterns.slice(-RECENT_PATTERN_LIMIT))
+        );
+    }
+
+    function pickVariant(topicKey, variants) {
+        let recent = loadRecentPatterns(topicKey);
+        let available = variants.filter(variant => !recent.includes(variant.id));
+
+        if (available.length === 0) {
+            recent = recent.slice(Math.floor(recent.length / 2));
+            available = variants.filter(variant => !recent.includes(variant.id));
+        }
+
+        const selected = pick(available.length ? available : variants);
+        saveRecentPatterns(topicKey, [...recent, selected.id]);
+        return selected.make();
     }
 
     function initCanvas() {
@@ -1747,36 +1778,106 @@
     // PDF fasikülündeki 9 üniteye göre dinamik soru üretim fabrikası.
     const QuestionFactory = {
         'oran-oranti': function() {
-            if (Math.random() < 0.5) {
+            const buildDagilimSorusu = (mode) => {
                 const k = Math.floor(Math.random() * 8) + 3;
                 const a = Math.floor(Math.random() * 3) + 2;
                 const b = Math.floor(Math.random() * 3) + 5;
                 const c = Math.floor(Math.random() * 4) + 8;
-                const toplam = k * (a + b + c);
-                const dogruCevap = a * k;
+                const oranlar = [a, b, c];
+                const miktarlar = oranlar.map(oran => oran * k);
+                const toplam = miktarlar.reduce((sum, miktar) => sum + miktar, 0);
                 const baglam = pick([
                     { kap: 'torbadaki', toplamIfade: 'Torbada', turler: ['kırmızı bilye', 'mavi bilye', 'yeşil bilye'], birim: 'bilye' },
                     { kap: 'kutudaki', toplamIfade: 'Kutuda', turler: ['kurşun kalem', 'tükenmez kalem', 'renkli kalem'], birim: 'kalem' },
                     { kap: 'raftaki', toplamIfade: 'Rafta', turler: ['matematik kitabı', 'fen kitabı', 'Türkçe kitabı'], birim: 'kitap' }
                 ]);
 
-                return {
-                    text: `Bir ${baglam.kap} ${baglam.turler[0]}, ${baglam.turler[1]} ve ${baglam.turler[2]} sayılarının oranı sırasıyla ${a}, ${b} ve ${c} ile doğru orantılıdır. ${baglam.toplamIfade} toplam ${toplam} adet ${baglam.birim} bulunduğuna göre, en az olan ${baglam.turler[0]} sayısı kaçtır?`,
-                    answer: dogruCevap,
-                    explanation: `Miktarlar ${a}k, ${b}k ve ${c}k olsun.<br>${a}k + ${b}k + ${c}k = ${a + b + c}k = ${toplam} olduğundan k = ${k}.<br>En az olan ${baglam.turler[0]} sayısı ${a}k = ${a} &times; ${k} = ${dogruCevap}.`
+                const hedefler = {
+                    ilkTur: {
+                        soru: `${baglam.turler[0]} sayısı kaçtır?`,
+                        cevap: miktarlar[0],
+                        sonuc: `${baglam.turler[0]} sayısı ${a}k = ${a} &times; ${k} = ${miktarlar[0]}.`
+                    },
+                    ortaTur: {
+                        soru: `ortadaki paya karşılık gelen ${baglam.turler[1]} sayısı kaçtır?`,
+                        cevap: miktarlar[1],
+                        sonuc: `${baglam.turler[1]} sayısı ${b}k = ${b} &times; ${k} = ${miktarlar[1]}.`
+                    },
+                    enCok: {
+                        soru: `${baglam.turler[2]} sayısı kaçtır?`,
+                        cevap: miktarlar[2],
+                        sonuc: `${baglam.turler[2]} sayısı ${c}k = ${c} &times; ${k} = ${miktarlar[2]}.`
+                    },
+                    fark: {
+                        soru: `${baglam.turler[2]} sayısı ${baglam.turler[0]} sayısından kaç fazladır?`,
+                        cevap: miktarlar[2] - miktarlar[0],
+                        sonuc: `İstenen fark ${miktarlar[2]} - ${miktarlar[0]} = ${miktarlar[2] - miktarlar[0]}.`
+                    },
+                    ilkIkiToplam: {
+                        soru: `${baglam.turler[0]} ve ${baglam.turler[1]} toplamı kaçtır?`,
+                        cevap: miktarlar[0] + miktarlar[1],
+                        sonuc: `İstenen toplam ${miktarlar[0]} + ${miktarlar[1]} = ${miktarlar[0] + miktarlar[1]}.`
+                    },
+                    sonIkiToplam: {
+                        soru: `${baglam.turler[1]} ve ${baglam.turler[2]} toplamı kaçtır?`,
+                        cevap: miktarlar[1] + miktarlar[2],
+                        sonuc: `İstenen toplam ${miktarlar[1]} + ${miktarlar[2]} = ${miktarlar[1] + miktarlar[2]}.`
+                    }
                 };
-            }
+                const hedef = hedefler[mode];
 
-            const a = Math.floor(Math.random() * 5) + 3;
-            const b = Math.floor(Math.random() * 5) + 7;
-            const toplam = (a + b) * (Math.floor(Math.random() * 7) + 8);
-            const k = toplam / (a + b);
-            const [isim1, isim2] = getFreshNames(2);
-            return {
-                text: `${possessiveName(isim1)} parasının ${possessiveName(isim2)} parasına oranı ${a}/${b}'dir. İkisinin paraları toplamı ${toplam} TL olduğuna göre, ${possessiveName(isim1)} parası kaç TL'dir?`,
-                answer: a * k,
-                explanation: `${possessiveName(isim1)} parası ${a}x, ${possessiveName(isim2)} parası ${b}x olsun.<br>${a}x + ${b}x = ${toplam} olduğundan ${a + b}x = ${toplam} ve x = ${k}.<br>${possessiveName(isim1)} parası ${a} &times; ${k} = ${a * k} TL'dir.`
+                return {
+                    text: `Bir ${baglam.kap} ${baglam.turler[0]}, ${baglam.turler[1]} ve ${baglam.turler[2]} sayılarının oranı sırasıyla ${a}, ${b} ve ${c} ile doğru orantılıdır. ${baglam.toplamIfade} toplam ${toplam} adet ${baglam.birim} bulunduğuna göre, ${hedef.soru}`,
+                    answer: hedef.cevap,
+                    explanation: `Miktarlar ${a}k, ${b}k ve ${c}k olsun.<br>${a}k + ${b}k + ${c}k = ${a + b + c}k = ${toplam} olduğundan k = ${k}.<br>Sayılar sırasıyla ${miktarlar[0]}, ${miktarlar[1]} ve ${miktarlar[2]} olur.<br>${hedef.sonuc}`
+                };
             };
+
+            const buildParaSorusu = (mode) => {
+                const a = Math.floor(Math.random() * 5) + 3;
+                const b = Math.floor(Math.random() * 5) + 7;
+                const toplam = (a + b) * (Math.floor(Math.random() * 7) + 8);
+                const k = toplam / (a + b);
+                const [isim1, isim2] = getFreshNames(2);
+                const para1 = a * k;
+                const para2 = b * k;
+                const hedefler = {
+                    ilkKisi: {
+                        soru: `${possessiveName(isim1)} parası kaç TL'dir?`,
+                        cevap: para1,
+                        sonuc: `${possessiveName(isim1)} parası ${a} &times; ${k} = ${para1} TL'dir.`
+                    },
+                    ikinciKisi: {
+                        soru: `${possessiveName(isim2)} parası kaç TL'dir?`,
+                        cevap: para2,
+                        sonuc: `${possessiveName(isim2)} parası ${b} &times; ${k} = ${para2} TL'dir.`
+                    },
+                    fark: {
+                        soru: `${isim2}, ${isim1}'den kaç TL fazla paraya sahiptir?`,
+                        cevap: para2 - para1,
+                        sonuc: `Aradaki fark ${para2} - ${para1} = ${para2 - para1} TL'dir.`
+                    }
+                };
+                const hedef = hedefler[mode];
+
+                return {
+                    text: `${possessiveName(isim1)} parasının ${possessiveName(isim2)} parasına oranı ${a}/${b}'dir. İkisinin paraları toplamı ${toplam} TL olduğuna göre, ${hedef.soru}`,
+                    answer: hedef.cevap,
+                    explanation: `${possessiveName(isim1)} parası ${a}x, ${possessiveName(isim2)} parası ${b}x olsun.<br>${a}x + ${b}x = ${toplam} olduğundan ${a + b}x = ${toplam} ve x = ${k}.<br>${hedef.sonuc}`
+                };
+            };
+
+            return pickVariant('oran-oranti', [
+                { id: 'dagilim-ilk-tur', make: () => buildDagilimSorusu('ilkTur') },
+                { id: 'dagilim-orta-tur', make: () => buildDagilimSorusu('ortaTur') },
+                { id: 'dagilim-en-cok', make: () => buildDagilimSorusu('enCok') },
+                { id: 'dagilim-fark', make: () => buildDagilimSorusu('fark') },
+                { id: 'dagilim-ilk-iki-toplam', make: () => buildDagilimSorusu('ilkIkiToplam') },
+                { id: 'dagilim-son-iki-toplam', make: () => buildDagilimSorusu('sonIkiToplam') },
+                { id: 'para-ilk-kisi', make: () => buildParaSorusu('ilkKisi') },
+                { id: 'para-ikinci-kisi', make: () => buildParaSorusu('ikinciKisi') },
+                { id: 'para-fark', make: () => buildParaSorusu('fark') }
+            ]);
         },
 
         'sayi-kesir': function() {
