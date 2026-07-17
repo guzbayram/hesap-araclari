@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TYT Problemler">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>TYT Problemler - Öğrenci Çalışma Alanı</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                display: grid;
+                grid-template-columns: 350px 1fr;
+                align-items: start;
+            }
+            .header-panel {
+                grid-column: span 2;
+            }
+        }
+
+        .header-panel {
+            background: linear-gradient(135deg, #4f46e5, #3730a3);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header-panel h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header-panel p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .topic-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .topic-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+        }
+
+        .topic-item:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .topic-item.active {
+            background-color: #e0e7ff;
+            border-color: #a5b4fc;
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-fill.low { background-color: var(--error); }
+        .progress-bar-fill.mid { background-color: var(--warning); }
+        .progress-bar-fill.high { background-color: var(--success); }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline.active {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: #f5f3ff;
+        }
+
+        .question-box h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 576px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .option-card {
+            background-color: #ffffff;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-card:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+
+        .option-card.correct {
+            border-color: var(--success);
+            background-color: #ecfdf5;
+            color: #065f46;
+        }
+
+        .option-card.wrong {
+            border-color: var(--error);
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        .option-prefix {
+            background-color: #f1f5f9;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .option-card.correct .option-prefix {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .option-card.wrong .option-prefix {
+            background-color: var(--error);
+            color: white;
+        }
+
+        .explanation-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #eff6ff;
+            border: 1px dashed #bfdbfe;
+            display: none;
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .advisor-box {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .stat-badge {
+            background-color: #f1f5f9;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .stat-badge span {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--accent-color);
+        }
+
+        body {
+            padding: 16px;
+            background:
+                linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+        }
+
+        .container {
+            max-width: 1360px;
+            gap: 16px;
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                grid-template-columns: 320px 1fr;
+            }
+        }
+
+        .header-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            text-align: left;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 18px 20px;
+        }
+
+        .header-panel h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            letter-spacing: 0;
+        }
+
+        .header-panel p {
+            max-width: 720px;
+        }
+
+        .study-chip {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+        }
+
+        .sidebar .card h3 {
+            font-size: 15px;
+            letter-spacing: 0;
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .btn {
+            min-height: 40px;
+            border-radius: 7px;
+        }
+
+        .btn-outline {
+            border-width: 1px;
+        }
+
+        .question-box {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .question-box h2 {
+            margin: 0;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            color: #0f172a;
+            background: #ffffff;
+        }
+
+        .question-shell {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        @media (min-width: 1080px) {
+            .question-shell {
+                grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+                min-height: 560px;
+            }
+        }
+
+        .question-pane,
+        .canvas-pane {
+            padding: 18px;
+        }
+
+        .question-pane {
+            border-right: 0;
+        }
+
+        @media (min-width: 1080px) {
+            .question-pane {
+                border-right: 1px solid var(--border);
+            }
+        }
+
+        .question-text {
+            margin-bottom: 18px;
+            border-left: 0;
+            border: 1px solid #dbe4ef;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 17px;
+        }
+
+        .question-visual {
+            display: none;
+            margin-bottom: 14px;
+            padding: 12px;
+            border: 1px solid #dbe4ef;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .question-visual.active {
+            display: block;
+        }
+
+        .mini-bars {
+            display: grid;
+            grid-template-columns: repeat(var(--bar-count, 4), minmax(38px, 1fr));
+            align-items: end;
+            gap: 10px;
+            min-height: 150px;
+            padding: 12px 8px 4px;
+            border-left: 2px solid #94a3b8;
+            border-bottom: 2px solid #94a3b8;
+        }
+
+        .mini-bar-item {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            height: 138px;
+        }
+
+        .mini-bar {
+            width: min(34px, 70%);
+            min-height: 8px;
+            border-radius: 4px 4px 0 0;
+            background: #60a5fa;
+            border: 1px solid #2563eb;
+        }
+
+        .mini-bar.alt {
+            background: #fbbf24;
+            border-color: #d97706;
+        }
+
+        .mini-bar-value,
+        .mini-bar-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-align: center;
+        }
+
+        .mini-logic {
+            display: grid;
+            grid-template-columns: repeat(6, 24px);
+            grid-auto-rows: 24px;
+            gap: 2px;
+            width: max-content;
+            max-width: 100%;
+            margin: 4px auto;
+            padding: 8px;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            background: #f0f9ff;
+        }
+
+        .mini-cell {
+            border: 1px solid #93c5fd;
+            background: #ffffff;
+        }
+
+        .mini-cell.filled {
+            background: #fbbf24;
+            border-color: #d97706;
+        }
+
+        .visual-caption {
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .study-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .options-grid {
+            margin-bottom: 0;
+        }
+
+        .option-card {
+            min-height: 50px;
+            border-width: 1px;
+            border-radius: 8px;
+        }
+
+        .option-prefix {
+            border-radius: 8px;
+        }
+
+        .explanation-box {
+            margin-top: 14px;
+            border-radius: 8px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+        }
+
+        .canvas-pane {
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .canvas-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .canvas-header h3 {
+            font-size: 15px;
+            color: #0f172a;
+        }
+
+        .canvas-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .canvas-tools {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .tool-btn {
+            flex: 0 0 auto;
+            min-width: 40px;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: #ffffff;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tool-btn.active,
+        .tool-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: #eef2ff;
+        }
+
+        .color-swatch {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #ffffff;
+            outline: 1px solid #cbd5e1;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .color-swatch.active {
+            outline: 2px solid var(--accent-color);
+        }
+
+        .size-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .size-control input {
+            width: 92px;
+        }
+
+        .canvas-wrap {
+            position: relative;
+            flex: 1;
+            min-height: 360px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background-color: #ffffff;
+            background-image:
+                linear-gradient(#e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+            background-size: 28px 28px;
+            overflow: hidden;
+        }
+
+        #solution-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 360px;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .canvas-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .canvas-empty.hidden {
+            display: none;
+        }
+
+        .badge {
+            border-radius: 999px;
+            background-color: #2563eb;
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 10px;
+            }
+
+            .header-panel {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .question-pane,
+            .canvas-pane {
+                padding: 14px;
+            }
+
+            .canvas-tools {
+                align-items: stretch;
+            }
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100dvh;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        .container {
+            width: 100%;
+            min-height: calc(100dvh - 32px);
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                height: calc(100dvh - 32px);
+                grid-template-rows: auto minmax(0, 1fr);
+                align-items: stretch;
+            }
+
+            .header-panel {
+                min-height: 88px;
+            }
+
+            .sidebar,
+            .main-content,
+            .question-box {
+                min-height: 0;
+                height: 100%;
+            }
+
+            .sidebar {
+                gap: 14px;
+            }
+
+            .sidebar .card:first-child {
+                flex: 0 0 auto;
+                padding: 18px;
+            }
+
+            .sidebar .card:nth-child(2) {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                padding: 18px;
+            }
+
+            .topic-list {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
+            .topic-list::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .topic-list::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 999px;
+            }
+
+            .question-box {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .question-box h2 {
+                flex: 0 0 auto;
+                min-height: 62px;
+            }
+
+            .question-shell {
+                flex: 1 1 auto;
+                min-height: 0;
+                height: auto;
+            }
+
+            .question-pane,
+            .canvas-pane {
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .question-pane {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .question-text {
+                flex: 0 0 auto;
+                margin-bottom: 0;
+                max-height: 34%;
+                overflow-y: auto;
+            }
+
+            .study-actions {
+                flex: 1 1 auto;
+                min-height: 0;
+                align-content: start;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
+            .canvas-pane {
+                height: 100%;
+            }
+
+            .canvas-tools {
+                flex: 0 0 auto;
+            }
+
+            .canvas-wrap {
+                flex: 1 1 auto;
+                min-height: 0;
+                height: auto;
+            }
+
+            #solution-canvas {
+                min-height: 0;
+                height: 100%;
+            }
+        }
+
+        @media (min-width: 992px) and (max-height: 760px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                min-height: calc(100dvh - 20px);
+                height: calc(100dvh - 20px);
+                gap: 10px;
+            }
+
+            .header-panel {
+                min-height: 72px;
+                padding: 12px 16px;
+            }
+
+            .header-panel h1 {
+                font-size: 20px;
+            }
+
+            .header-panel p {
+                font-size: 13px;
+            }
+
+            .card,
+            .sidebar .card:first-child,
+            .sidebar .card:nth-child(2),
+            .question-pane,
+            .canvas-pane {
+                padding: 14px;
+            }
+
+            .topic-item {
+                margin-bottom: 8px;
+                padding: 10px;
+            }
+
+            .question-text {
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .option-card {
+                min-height: 44px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (min-width: 721px) and (max-width: 991px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .container {
+                max-width: 940px;
+                min-height: calc(100dvh - 32px);
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+                gap: 14px;
+                align-items: stretch;
+            }
+
+            .sidebar .card {
+                min-height: 0;
+            }
+
+            .sidebar .card:nth-child(2) {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .topic-list {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .topic-item {
+                margin-bottom: 0;
+            }
+
+            .question-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-wrap,
+            #solution-canvas {
+                min-height: 380px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                overflow-y: auto;
+                min-height: 100dvh;
+                padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+            }
+
+            .container {
+                min-height: auto;
+                gap: 10px;
+            }
+
+            .header-panel {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: 12px;
+                border-radius: 8px;
+                box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+            }
+
+            .header-panel h1 {
+                font-size: 18px;
+                line-height: 1.2;
+            }
+
+            .header-panel p {
+                display: none;
+            }
+
+            .study-chip {
+                min-height: 28px;
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+
+            .main-content {
+                order: 2;
+            }
+
+            .sidebar {
+                order: 3;
+                gap: 10px;
+            }
+
+            .sidebar .card,
+            .question-box {
+                border-radius: 8px;
+            }
+
+            .sidebar .card {
+                padding: 12px;
+            }
+
+            .mode-selector {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+
+            .stats-summary {
+                margin-top: 8px;
+            }
+
+            .advisor-box {
+                margin-top: 10px;
+                padding: 10px;
+            }
+
+            .topic-list {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                scroll-snap-type: x proximity;
+            }
+
+            .topic-item {
+                flex: 0 0 74%;
+                margin-bottom: 0;
+                scroll-snap-align: start;
+            }
+
+            .question-box h2 {
+                min-height: 52px;
+                padding: 12px;
+                font-size: 17px;
+            }
+
+            .badge {
+                font-size: 10px;
+                padding: 4px 7px;
+            }
+
+            .question-text {
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .option-card {
+                min-height: 46px;
+                padding: 10px 12px;
+            }
+
+            .canvas-header {
+                align-items: flex-start;
+            }
+
+            .canvas-tools {
+                gap: 7px;
+                padding: 8px;
+            }
+
+            .tool-btn {
+                height: 34px;
+                min-width: 38px;
+                padding: 0 9px;
+                font-size: 12px;
+            }
+
+            .size-control {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .size-control input {
+                width: min(180px, 58vw);
+            }
+
+            .canvas-wrap,
+            #solution-canvas {
+                min-height: 42dvh;
+            }
+
+            .canvas-empty {
+                font-size: clamp(18px, 6vw, 28px);
+                line-height: 1.35;
+            }
+        }
+
+        @media (min-width: 760px) and (max-width: 1079px) {
+            body {
+                overflow: hidden;
+            }
+
+            .container {
+                display: grid;
+                grid-template-columns: 260px minmax(0, 1fr);
+                grid-template-rows: auto minmax(0, 1fr);
+                max-width: none;
+                height: calc(100dvh - 32px);
+                min-height: calc(100dvh - 32px);
+                align-items: stretch;
+            }
+
+            .header-panel {
+                grid-column: 1 / -1;
+                min-height: 78px;
+                padding: 14px 16px;
+            }
+
+            .header-panel h1 {
+                font-size: 20px;
+            }
+
+            .header-panel p {
+                font-size: 13px;
+            }
+
+            .sidebar,
+            .main-content,
+            .question-box {
+                min-height: 0;
+                height: 100%;
+            }
+
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .sidebar .card:first-child {
+                flex: 0 0 auto;
+            }
+
+            .sidebar .card:nth-child(2) {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .topic-list {
+                display: block;
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                padding-right: 4px;
+            }
+
+            .topic-item {
+                margin-bottom: 8px;
+            }
+
+            .question-box {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .question-box h2 {
+                flex: 0 0 auto;
+                min-height: 56px;
+            }
+
+            .question-shell {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: minmax(250px, 0.9fr) minmax(360px, 1.1fr);
+                height: auto;
+            }
+
+            .question-pane,
+            .canvas-pane {
+                min-height: 0;
+                overflow: hidden;
+                padding: 14px;
+            }
+
+            .question-pane {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .question-text {
+                flex: 0 0 auto;
+                max-height: 44%;
+                overflow-y: auto;
+                margin-bottom: 12px;
+                font-size: 15px;
+                padding: 12px;
+            }
+
+            .study-actions {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+            .options-grid {
+                gap: 8px;
+            }
+
+            .option-card {
+                min-height: 42px;
+                padding: 9px 10px;
+            }
+
+            .canvas-pane {
+                height: 100%;
+            }
+
+            .canvas-wrap {
+                flex: 1 1 auto;
+                min-height: 0;
+                height: auto;
+            }
+
+            #solution-canvas {
+                min-height: 0;
+                height: 100%;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .question-pane,
+            .canvas-pane {
+                padding: 10px;
+            }
+
+            .question-box h2 {
+                min-height: 48px;
+                padding: 10px;
+            }
+
+            .question-text {
+                font-size: 14px;
+                line-height: 1.5;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .option-card {
+                min-height: 40px;
+                padding: 8px 10px;
+            }
+
+            .canvas-tools {
+                gap: 6px;
+                padding: 7px;
+            }
+
+            .tool-btn {
+                height: 32px;
+            }
+
+            .color-swatch {
+                width: 25px;
+                height: 25px;
+            }
+
+            .canvas-wrap,
+            #solution-canvas {
+                min-height: 28dvh;
+            }
+
+            .canvas-empty {
+                font-size: clamp(16px, 5.2vw, 22px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-panel">
+        <div>
+            <h1>TYT Problemler Çalışma Alanı</h1>
+            <p>Soru, çözüm defteri ve konu performansı aynı ekranda; öğrencinin ritmini bozmadan pratik yapmak için düzenlendi.</p>
+        </div>
+        <div class="study-chip">Adaptif TYT Pratik</div>
+    </div>
+
+    <!-- SOL PANEL: DASHBOARD & ANALİTİK -->
+    <div class="sidebar">
+        <div class="card">
+            <h3>Çalışma Modu</h3>
+            <div class="mode-selector" style="margin-top: 10px;">
+                <button class="btn btn-outline active" id="mode-adaptive" onclick="setMode('adaptive')">Adaptif Çalış</button>
+                <button class="btn btn-outline" id="mode-manual" onclick="setMode('manual')">Konu Seç</button>
+            </div>
+            
+            <div class="stats-summary">
+                <div class="stat-badge">
+                    <span id="total-correct">0</span>
+                    <div class="stat-label">Doğru</div>
+                </div>
+                <div class="stat-badge">
+                    <span id="total-accuracy">0%</span>
+                    <div class="stat-label">Başarı Oranı</div>
+                </div>
+            </div>
+
+            <div class="advisor-box" id="advisor-text">
+                Henüz yeterli veri toplanmadı. Test çözmeye başlayarak yapay zeka analizini devreye sokabilirsin.
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Konu Performansları</h3>
+            <ul class="topic-list" id="topic-container">
+                <!-- Dinamik Doldurulacak -->
+            </ul>
+            <button class="btn btn-outline" style="width: 100%; font-size: 12px; padding: 6px;" onclick="resetStats()">Verileri Sıfırla</button>
+        </div>
+    </div>
+
+    <!-- SAĞ PANEL: SORU ARENASI -->
+    <div class="main-content">
+        <div class="card question-box">
+            <h2>
+                <span id="current-topic-title">Yükleniyor...</span>
+                <span class="badge" id="question-difficulty">TYT Seviyesi</span>
+            </h2>
+
+            <div class="question-shell">
+                <section class="question-pane" aria-label="Soru ve cevap alanı">
+                    <div class="question-text" id="question-body">
+                        Soru üretiliyor, lütfen bekleyin...
+                    </div>
+                    <div class="question-visual" id="question-visual"></div>
+
+                    <div class="study-actions">
+                        <div class="options-grid" id="options-container">
+                            <!-- Seçenekler dinamik yüklenecek -->
+                        </div>
+
+                        <button class="btn btn-primary" id="next-btn" style="display: none; width: 100%;" onclick="generateNewQuestion()">Sıradaki Soruya Geç</button>
+
+                        <div class="explanation-box" id="explanation-container">
+                            <div class="explanation-title">Çözüm ve Analiz Yolu</div>
+                            <div id="explanation-body"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="canvas-pane" aria-label="Çözüm kanvası">
+                    <div class="canvas-header">
+                        <h3>Çözüm Defteri</h3>
+                        <div class="canvas-status" id="canvas-status">Kalem hazır</div>
+                    </div>
+                    <div class="canvas-tools" aria-label="Çözüm araçları">
+                        <button class="tool-btn active" id="pen-tool" type="button" onclick="setCanvasTool('pen')" title="Kalem">Kalem</button>
+                        <button class="tool-btn" id="eraser-tool" type="button" onclick="setCanvasTool('eraser')" title="Silgi">Silgi</button>
+                        <button class="tool-btn" type="button" onclick="undoCanvas()" title="Geri al">Geri Al</button>
+                        <button class="tool-btn" type="button" onclick="clearCanvas()" title="Defteri temizle">Temizle</button>
+                        <button class="color-swatch active" type="button" style="background:#0f172a" onclick="setCanvasColor('#0f172a', this)" title="Siyah"></button>
+                        <button class="color-swatch" type="button" style="background:#2563eb" onclick="setCanvasColor('#2563eb', this)" title="Mavi"></button>
+                        <button class="color-swatch" type="button" style="background:#dc2626" onclick="setCanvasColor('#dc2626', this)" title="Kırmızı"></button>
+                        <label class="size-control">Kalınlık
+                            <input id="brush-size" type="range" min="2" max="18" value="4" oninput="setBrushSize(this.value)">
+                        </label>
+                    </div>
+                    <div class="canvas-wrap" id="canvas-wrap">
+                        <canvas id="solution-canvas"></canvas>
+                        <div class="canvas-empty" id="canvas-empty">Burada işlem yapabilir, tablo kurabilir veya denklemini yazabilirsin.</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Konu Tanımlamaları ve Meta Verileri
+    const topics = {
+        'oran-oranti': { title: 'Oran-Orantı', count: 0, correct: 0 },
+        'sayi-kesir': { title: 'Sayı-Kesir Problemleri', count: 0, correct: 0 },
+        'yas': { title: 'Yaş Problemleri', count: 0, correct: 0 },
+        'isci': { title: 'İşçi Problemleri', count: 0, correct: 0 },
+        'yuzde': { title: 'Yüzde Problemleri', count: 0, correct: 0 },
+        'karisim': { title: 'Karışım Problemleri', count: 0, correct: 0 },
+        'hareket': { title: 'Hareket Problemleri', count: 0, correct: 0 },
+        'grafik': { title: 'Grafik Problemleri', count: 0, correct: 0 },
+        'mantik': { title: 'Sayısal Mantık', count: 0, correct: 0 }
+    };
+
+    let currentMode = 'adaptive'; // 'adaptive' veya 'manual'
+    let selectedTopic = 'sayi-kesir';
+    let currentQuestionData = null;
+    let hasAnswered = false;
+    let solutionCanvas = null;
+    let solutionCtx = null;
+    let drawing = false;
+    let canvasTool = 'pen';
+    let brushColor = '#0f172a';
+    let brushSize = 4;
+    let canvasHistory = [];
+
+    // LocalStorage senkronizasyonu
+    function loadStats() {
+        const saved = localStorage.getItem('tyt_problemler_stats');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            for (let key in parsed) {
+                if (topics[key]) {
+                    topics[key].count = parsed[key].count || 0;
+                    topics[key].correct = parsed[key].correct || 0;
+                }
+            }
+        }
+    }
+
+    function saveStats() {
+        localStorage.setItem('tyt_problemler_stats', JSON.stringify(topics));
+    }
+
+    const PERSON_NAMES = [
+        'Ada', 'Adem', 'Ahmet', 'Akın', 'Alara', 'Ali', 'Arda', 'Aslı',
+        'Aylin', 'Ayşe', 'Bartu', 'Beren', 'Bora', 'Burak', 'Cem', 'Ceren',
+        'Deniz', 'Derya', 'Ece', 'Efe', 'Elif', 'Emir', 'Esra', 'Fatma',
+        'Gizem', 'Hakan', 'Hasan', 'İdil', 'İlayda', 'Kerem', 'Levent',
+        'Mehmet', 'Melis', 'Mert', 'Mina', 'Murat', 'Naz', 'Nehir', 'Onur',
+        'Ömer', 'Pelin', 'Seda', 'Selin', 'Sema', 'Tolga', 'Tuğba', 'Yasemin',
+        'Yiğit', 'Zeynep', 'Aksel', 'Alp', 'Anıl', 'Azra', 'Baran', 'Başak',
+        'Begüm', 'Berk', 'Bilge', 'Can', 'Defne', 'Derin', 'Doruk', 'Ela',
+        'Elvan', 'Emel', 'Eren', 'Fırat', 'Gökçe', 'Güney', 'Irmak', 'Işıl',
+        'Kaan', 'Lara', 'Maya', 'Melek', 'Mira', 'Nil', 'Nisa', 'Okan',
+        'Öykü', 'Rana', 'Rüzgar', 'Sarp', 'Serkan', 'Sude', 'Tuna', 'Umut',
+        'Utku', 'Yağmur', 'Yaren', 'Yunus', 'Zehra', 'Asaf', 'Atakan', 'Beste',
+        'Çağla', 'Çağrı', 'Damla', 'Duru', 'Eylül', 'Görkem', 'İrem', 'Kaya',
+        'Lina', 'Miray', 'Neva', 'Ozan', 'Poyraz', 'Rüya', 'Sıla', 'Toprak',
+        'Uğur', 'Vera', 'Yalın', 'Zara'
+    ];
+    const RECENT_NAME_LIMIT = 40;
+
+    function loadRecentNameGroups() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('tyt_problemler_recent_names') || '[]');
+            if (!Array.isArray(saved)) return [];
+            if (saved.every(item => typeof item === 'string')) {
+                return saved.filter(name => PERSON_NAMES.includes(name)).map(name => [name]);
+            }
+            return saved
+                .filter(group => Array.isArray(group))
+                .map(group => group.filter(name => PERSON_NAMES.includes(name)))
+                .filter(group => group.length > 0);
+        } catch {
+            return [];
+        }
+    }
+
+    function saveRecentNameGroups(groups) {
+        localStorage.setItem('tyt_problemler_recent_names', JSON.stringify(groups.slice(-RECENT_NAME_LIMIT)));
+    }
+
+    function possessiveName(name) {
+        const vowels = ['a', 'ı', 'o', 'u', 'e', 'i', 'ö', 'ü'];
+        const lastVowel = [...name.toLocaleLowerCase('tr-TR')].reverse().find(ch => vowels.includes(ch)) || 'e';
+        const suffix = ['a', 'ı'].includes(lastVowel) ? 'ın'
+            : ['o', 'u'].includes(lastVowel) ? 'un'
+            : ['ö', 'ü'].includes(lastVowel) ? 'ün'
+            : 'in';
+        const buffer = vowels.includes(name.slice(-1).toLocaleLowerCase('tr-TR')) ? 'n' : '';
+        return `${name}'${buffer}${suffix}`;
+    }
+
+    function getFreshNames(count = 1) {
+        let recentGroups = loadRecentNameGroups();
+        let blocked = new Set(recentGroups.flat());
+        let available = PERSON_NAMES.filter(name => !blocked.has(name));
+
+        if (available.length < count) {
+            recentGroups = recentGroups.slice(Math.max(0, recentGroups.length - Math.floor(RECENT_NAME_LIMIT / 2)));
+            blocked = new Set(recentGroups.flat());
+            available = PERSON_NAMES.filter(name => !blocked.has(name));
+        }
+
+        const selected = [];
+        while (selected.length < count && available.length > 0) {
+            const index = Math.floor(Math.random() * available.length);
+            selected.push(available.splice(index, 1)[0]);
+        }
+
+        if (selected.length < count) {
+            const fallback = PERSON_NAMES.filter(name => !selected.includes(name));
+            while (selected.length < count && fallback.length > 0) {
+                const index = Math.floor(Math.random() * fallback.length);
+                selected.push(fallback.splice(index, 1)[0]);
+            }
+        }
+
+        saveRecentNameGroups([...recentGroups, selected]);
+        return selected;
+    }
+
+    function initCanvas() {
+        solutionCanvas = document.getElementById('solution-canvas');
+        solutionCtx = solutionCanvas.getContext('2d');
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        solutionCanvas.addEventListener('pointerdown', startDrawing);
+        solutionCanvas.addEventListener('pointermove', drawOnCanvas);
+        solutionCanvas.addEventListener('pointerup', stopDrawing);
+        solutionCanvas.addEventListener('pointerleave', stopDrawing);
+        solutionCanvas.addEventListener('pointercancel', stopDrawing);
+    }
+
+    function resizeCanvas() {
+        if (!solutionCanvas || !solutionCtx) return;
+
+        const wrap = document.getElementById('canvas-wrap');
+        const snapshot = solutionCanvas.width && solutionCanvas.height
+            ? solutionCanvas.toDataURL()
+            : null;
+        const ratio = window.devicePixelRatio || 1;
+        const rect = wrap.getBoundingClientRect();
+
+        solutionCanvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        solutionCanvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        solutionCanvas.style.width = rect.width + 'px';
+        solutionCanvas.style.height = rect.height + 'px';
+        solutionCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        solutionCtx.lineCap = 'round';
+        solutionCtx.lineJoin = 'round';
+
+        if (snapshot) {
+            const img = new Image();
+            img.onload = () => solutionCtx.drawImage(img, 0, 0, rect.width, rect.height);
+            img.src = snapshot;
+        }
+    }
+
+    function getCanvasPoint(event) {
+        const rect = solutionCanvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    }
+
+    function saveCanvasState() {
+        if (!solutionCanvas) return;
+        canvasHistory.push(solutionCanvas.toDataURL());
+        if (canvasHistory.length > 20) {
+            canvasHistory.shift();
+        }
+    }
+
+    function startDrawing(event) {
+        event.preventDefault();
+        saveCanvasState();
+        drawing = true;
+        const point = getCanvasPoint(event);
+        solutionCtx.beginPath();
+        solutionCtx.moveTo(point.x, point.y);
+        document.getElementById('canvas-empty').classList.add('hidden');
+    }
+
+    function drawOnCanvas(event) {
+        if (!drawing) return;
+        event.preventDefault();
+
+        const point = getCanvasPoint(event);
+        solutionCtx.globalCompositeOperation = canvasTool === 'eraser' ? 'destination-out' : 'source-over';
+        solutionCtx.strokeStyle = brushColor;
+        solutionCtx.lineWidth = canvasTool === 'eraser' ? brushSize * 3 : brushSize;
+        solutionCtx.lineTo(point.x, point.y);
+        solutionCtx.stroke();
+    }
+
+    function stopDrawing() {
+        if (!drawing) return;
+        drawing = false;
+        solutionCtx.closePath();
+        solutionCtx.globalCompositeOperation = 'source-over';
+    }
+
+    function setCanvasTool(tool) {
+        canvasTool = tool;
+        document.getElementById('pen-tool').classList.toggle('active', tool === 'pen');
+        document.getElementById('eraser-tool').classList.toggle('active', tool === 'eraser');
+        document.getElementById('canvas-status').innerText = tool === 'pen' ? 'Kalem hazır' : 'Silgi hazır';
+    }
+
+    function setCanvasColor(color, button) {
+        brushColor = color;
+        setCanvasTool('pen');
+        document.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('active'));
+        button.classList.add('active');
+    }
+
+    function setBrushSize(value) {
+        brushSize = Number(value);
+    }
+
+    function clearCanvas() {
+        if (!solutionCanvas || !solutionCtx) return;
+        saveCanvasState();
+        solutionCtx.clearRect(0, 0, solutionCanvas.width, solutionCanvas.height);
+        document.getElementById('canvas-empty').classList.remove('hidden');
+    }
+
+    function undoCanvas() {
+        if (!solutionCanvas || !solutionCtx || canvasHistory.length === 0) return;
+
+        const previousState = canvasHistory.pop();
+        const img = new Image();
+        img.onload = () => {
+            solutionCtx.clearRect(0, 0, solutionCanvas.width, solutionCanvas.height);
+            const rect = solutionCanvas.getBoundingClientRect();
+            solutionCtx.drawImage(img, 0, 0, rect.width, rect.height);
+            document.getElementById('canvas-empty').classList.add('hidden');
+        };
+        img.src = previousState;
+    }
+
+    function resetStats() {
+        if(confirm("Tüm istatistikler sıfırlanacak. Emin misin?")) {
+            for (let key in topics) {
+                topics[key].count = 0;
+                topics[key].correct = 0;
+            }
+            saveStats();
+            updateUI();
+            generateNewQuestion();
+        }
+    }
+
+    // Arayüz Güncelleme Motoru
+    function updateUI() {
+        const container = document.getElementById('topic-container');
+        container.innerHTML = '';
+        
+        let totalC = 0;
+        let totalT = 0;
+        let lowestTopic = null;
+        let lowestRate = 101;
+
+        for (let key in topics) {
+            const topic = topics[key];
+            totalC += topic.correct;
+            totalT += topic.count;
+            
+            let rate = 0;
+            if (topic.count > 0) {
+                rate = Math.round((topic.correct / topic.count) * 100);
+            }
+
+            // En zayıf konuyu tespit et
+            if (rate < lowestRate || (topic.count === 0 && lowestRate > 0)) {
+                lowestRate = topic.count === 0 ? -1 : rate;
+                lowestTopic = topic.title;
+            }
+
+            const li = document.createElement('li');
+            li.className = `topic-item ${currentMode === 'manual' && selectedTopic === key ? 'active' : ''}`;
+            li.onclick = () => selectManualTopic(key);
+
+            let progressClass = 'low';
+            if (rate >= 70) progressClass = 'high';
+            else if (rate >= 40) progressClass = 'mid';
+
+            li.innerHTML = `
+                <div class="topic-header">
+                    <span>${topic.title}</span>
+                    <span style="color: var(--text-secondary)">${topic.correct}/${topic.count} (%${rate})</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill ${progressClass}" style="width: ${topic.count > 0 ? rate : 0}%"></div>
+                </div>
+            `;
+            container.appendChild(li);
+        }
+
+        // Genel Skorlar
+        document.getElementById('total-correct').innerText = totalC;
+        const accuracy = totalT > 0 ? Math.round((totalC / totalT) * 100) : 0;
+        document.getElementById('total-accuracy').innerText = accuracy + '%';
+
+        // Akıllı Rehber Mesajı
+        const advisor = document.getElementById('advisor-text');
+        if (totalT === 0) {
+            advisor.innerText = "Sistem aktif. İlk sorularını çözdükçe sana özel eksik analizleri burada görünecek.";
+        } else if (lowestRate === -1 || lowestRate < 50) {
+            advisor.innerText = `⚠️ Analiz Raporu: Şu an en çok zorlandığın alan "${lowestTopic}". Adaptif mod bu konudan sorulara ağırlık verecektir.`;
+        } else if (accuracy >= 85) {
+            advisor.innerText = "🔥 Müthiş Performans! Problemler altyapın TYT standartlarının üzerinde. Hız kazanmak için seriyi bozma!";
+        } else {
+            advisor.innerText = "📈 Dengeli İlerleme: Yanlış yaptığın soruların altındaki çözüm yollarını mutlaka dikkatle incele.";
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('mode-adaptive').classList.toggle('active', mode === 'adaptive');
+        document.getElementById('mode-manual').classList.toggle('active', mode === 'manual');
+        updateUI();
+        generateNewQuestion();
+    }
+
+    function selectManualTopic(key) {
+        if (currentMode !== 'manual') {
+            setMode('manual');
+        }
+        selectedTopic = key;
+        updateUI();
+        generateNewQuestion();
+    }
+
+    function pick(list) {
+        return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function barVisual(labels, values, caption = '') {
+        const max = Math.max(...values);
+        const bars = values.map((value, index) => `
+            <div class="mini-bar-item">
+                <div class="mini-bar-value">${value}</div>
+                <div class="mini-bar ${index % 2 ? 'alt' : ''}" style="height:${Math.max(12, Math.round(value / max * 100))}%"></div>
+                <div class="mini-bar-label">${labels[index]}</div>
+            </div>
+        `).join('');
+        return `<div class="mini-bars" style="--bar-count:${labels.length}">${bars}</div>${caption ? `<div class="visual-caption">${caption}</div>` : ''}`;
+    }
+
+    function logicGrid(cells, caption = '') {
+        let html = '<div class="mini-logic">';
+        for (let r = 1; r <= 6; r++) {
+            for (let c = 1; c <= 6; c++) {
+                html += `<div class="mini-cell ${cells.some(cell => cell[0] === r && cell[1] === c) ? 'filled' : ''}"></div>`;
+            }
+        }
+        html += '</div>';
+        return html + (caption ? `<div class="visual-caption">${caption}</div>` : '');
+    }
+
+    // PDF fasikülündeki 9 üniteye göre dinamik soru üretim fabrikası.
+    const QuestionFactory = {
+        'oran-oranti': function() {
+            if (Math.random() < 0.5) {
+                const k = Math.floor(Math.random() * 8) + 3;
+                const a = Math.floor(Math.random() * 3) + 2;
+                const b = Math.floor(Math.random() * 3) + 5;
+                const c = Math.floor(Math.random() * 4) + 8;
+                const toplam = k * (a + b + c);
+                const dogruCevap = a * k;
+                const baglam = pick([
+                    { kap: 'torbadaki', toplamIfade: 'Torbada', turler: ['kırmızı bilye', 'mavi bilye', 'yeşil bilye'], birim: 'bilye' },
+                    { kap: 'kutudaki', toplamIfade: 'Kutuda', turler: ['kurşun kalem', 'tükenmez kalem', 'renkli kalem'], birim: 'kalem' },
+                    { kap: 'raftaki', toplamIfade: 'Rafta', turler: ['matematik kitabı', 'fen kitabı', 'Türkçe kitabı'], birim: 'kitap' }
+                ]);
+
+                return {
+                    text: `Bir ${baglam.kap} ${baglam.turler[0]}, ${baglam.turler[1]} ve ${baglam.turler[2]} sayılarının oranı sırasıyla ${a}, ${b} ve ${c} ile doğru orantılıdır. ${baglam.toplamIfade} toplam ${toplam} adet ${baglam.birim} bulunduğuna göre, en az olan ${baglam.turler[0]} sayısı kaçtır?`,
+                    answer: dogruCevap,
+                    explanation: `Miktarlar ${a}k, ${b}k ve ${c}k olsun.<br>${a}k + ${b}k + ${c}k = ${a + b + c}k = ${toplam} olduğundan k = ${k}.<br>En az olan ${baglam.turler[0]} sayısı ${a}k = ${a} &times; ${k} = ${dogruCevap}.`
+                };
+            }
+
+            const a = Math.floor(Math.random() * 5) + 3;
+            const b = Math.floor(Math.random() * 5) + 7;
+            const toplam = (a + b) * (Math.floor(Math.random() * 7) + 8);
+            const k = toplam / (a + b);
+            const [isim1, isim2] = getFreshNames(2);
+            return {
+                text: `${possessiveName(isim1)} parasının ${possessiveName(isim2)} parasına oranı ${a}/${b}'dir. İkisinin paraları toplamı ${toplam} TL olduğuna göre, ${possessiveName(isim1)} parası kaç TL'dir?`,
+                answer: a * k,
+                explanation: `${possessiveName(isim1)} parası ${a}x, ${possessiveName(isim2)} parası ${b}x olsun.<br>${a}x + ${b}x = ${toplam} olduğundan ${a + b}x = ${toplam} ve x = ${k}.<br>${possessiveName(isim1)} parası ${a} &times; ${k} = ${a * k} TL'dir.`
+            };
+        },
+
+        'sayi-kesir': function() {
+            if (Math.random() < 0.5) {
+                const katsayi = Math.floor(Math.random() * 5) + 3;
+                const eksik = Math.floor(Math.random() * 8) + 4;
+                const sonuc = (Math.floor(Math.random() * 10) + 8) * katsayi - eksik;
+                const x = (sonuc + eksik) / katsayi;
+                return {
+                    text: `Bir sayının ${katsayi} katının ${eksik} eksiği ${sonuc} olduğuna göre, bu sayı kaçtır?`,
+                    answer: x,
+                    explanation: `Sayıya x diyelim.<br>${katsayi}x - ${eksik} = ${sonuc}<br>${katsayi}x = ${sonuc + eksik}<br>x = ${x}.`
+                };
+            }
+
+            const payda = pick([3, 4, 5, 6]);
+            const pay = payda - 1;
+            const kalan = (Math.floor(Math.random() * 12) + 8) * (payda - pay);
+            const toplam = kalan * payda;
+            return {
+                text: `Bir öğrenci parasının ${pay}/${payda}'ünü harcadığında geriye ${kalan} TL kalıyor. Başlangıçta kaç TL'si vardır?`,
+                answer: toplam,
+                explanation: `Paranın ${pay}/${payda}'ü harcanırsa geriye ${payda - pay}/${payda}'ü kalır.<br>${payda - pay}/${payda} parası ${kalan} TL ise paranın tamamı ${kalan} &times; ${payda} = ${toplam} TL'dir.`
+            };
+        },
+
+        'yas': function() {
+            const kucukYas = Math.floor(Math.random() * 8) + 8;
+            const yil = Math.floor(Math.random() * 6) + 3;
+            const kat = pick([2, 3]);
+            const buyukYas = kat * (kucukYas + yil) - yil;
+            const [buyuk, kucuk] = getFreshNames(2);
+            return {
+                text: `${buyuk} ${buyukYas} yaşında, ${kucuk} ${kucukYas} yaşındadır. Kaç yıl sonra ${possessiveName(buyuk)} yaşı ${possessiveName(kucuk)} yaşının ${kat} katı olur?`,
+                answer: yil,
+                explanation: `x yıl sonra ${buyuk} ${buyukYas} + x, ${kucuk} ${kucukYas} + x yaşında olur.<br>${buyukYas} + x = ${kat}(${kucukYas} + x)<br>Buradan x = ${yil} bulunur.`
+            };
+        },
+
+        'isci': function() {
+            const secilen = pick([
+                { a: 8, b: 24, t: 6 },
+                { a: 10, b: 15, t: 6 },
+                { a: 12, b: 24, t: 8 },
+                { a: 6, b: 12, t: 4 }
+            ]);
+            const [isim1, isim2] = getFreshNames(2);
+            return {
+                text: `${isim1} bir işi ${secilen.a} günde, ${isim2} aynı işi ${secilen.b} günde bitirebiliyor. İkisi birlikte çalışırsa iş kaç günde biter?`,
+                answer: secilen.t,
+                explanation: `${isim1} 1 günde işin 1/${secilen.a}'ini, ${isim2} 1/${secilen.b}'ini yapar.<br>Birlikte günlük iş miktarı 1/${secilen.a} + 1/${secilen.b} = 1/${secilen.t}.<br>Bu nedenle iş ${secilen.t} günde biter.`
+            };
+        },
+
+        'yuzde': function() {
+            if (Math.random() < 0.5) {
+                const sayi = pick([120, 160, 200, 240, 300, 400]);
+                const oran = pick([15, 20, 25, 30, 40]);
+                const dogruCevap = sayi * oran / 100;
+                return {
+                    text: `${sayi} sayısının %${oran}'i kaçtır?`,
+                    answer: dogruCevap,
+                    explanation: `${sayi} &times; ${oran}/100 = ${dogruCevap}.`
+                };
+            }
+
+            const taban = pick([200, 300, 400, 500]);
+            const oran1 = pick([20, 25, 30, 40]);
+            const oran2 = pick([10, 20, 25, 50]);
+            const dogruCevap = taban * oran1 / 100 * oran2 / 100;
+            return {
+                text: `${taban} sayısının %${oran1}'inin %${oran2}'si kaçtır?`,
+                answer: dogruCevap,
+                explanation: `Önce ${taban} sayısının %${oran1}'i ${taban * oran1 / 100} olur.<br>Bunun %${oran2}'si ${dogruCevap} bulunur.`
+            };
+        },
+
+        'karisim': function() {
+            if (Math.random() < 0.5) {
+                const toplam = pick([120, 160, 200, 240]);
+                const oran = pick([20, 25, 30, 40]);
+                const madde = toplam * oran / 100;
+                const su = toplam - madde;
+                return {
+                    text: `%${oran}'ı şeker olan ${toplam} gram şeker-su karışımındaki su miktarı şeker miktarından kaç gram fazladır?`,
+                    answer: su - madde,
+                    explanation: `Şeker miktarı ${toplam} &times; ${oran}/100 = ${madde} gramdır.<br>Su miktarı ${toplam} - ${madde} = ${su} gramdır.<br>Fark ${su} - ${madde} = ${su - madde} gramdır.`
+                };
+            }
+
+            const m1 = 200, m2 = 300;
+            const o1 = pick([20, 30]);
+            const o2 = pick([50, 60]);
+            const dogruCevap = (m1 * o1 + m2 * o2) / (m1 + m2);
+            return {
+                text: `Tuz oranı %${o1} olan ${m1} gram karışım ile tuz oranı %${o2} olan ${m2} gram karışım karıştırılıyor. Yeni karışımın tuz oranı yüzde kaç olur?`,
+                answer: dogruCevap,
+                explanation: `Toplam tuz miktarı ${m1} &times; ${o1}/100 + ${m2} &times; ${o2}/100 = ${(m1 * o1 + m2 * o2) / 100} gramdır.<br>Toplam karışım ${m1 + m2} gram olduğundan oran %${dogruCevap} olur.`
+            };
+        },
+
+        'hareket': function() {
+            if (Math.random() < 0.5) {
+                const v1 = pick([60, 70, 80, 90]);
+                const v2 = pick([40, 50, 60]);
+                const t = pick([2, 3, 4]);
+                return {
+                    text: `A ve B kentlerinden hızları ${v1} km/s ve ${v2} km/s olan iki araç aynı anda birbirine doğru hareket ediyor. ${t} saat sonra karşılaştıklarına göre iki kent arası kaç km'dir?`,
+                    answer: (v1 + v2) * t,
+                    explanation: `Birbirlerine doğru gittikleri için hızlar toplanır: ${v1} + ${v2} = ${v1 + v2}.<br>Yol = hız &times; zaman = ${v1 + v2} &times; ${t} = ${(v1 + v2) * t} km.`
+                };
+            }
+
+            const v1 = pick([80, 90, 100]);
+            const v2 = pick([50, 60, 70]);
+            const t = pick([2, 3, 4]);
+            return {
+                text: `Aynı yönde giden iki araçtan arkadaki aracın hızı ${v1} km/s, öndeki aracın hızı ${v2} km/s'dir. Arkadaki araç ${t} saat sonra öndekine yetiştiğine göre başlangıçtaki aralık kaç km'dir?`,
+                answer: (v1 - v2) * t,
+                explanation: `Yetişme sorularında göreli hız farktır: ${v1} - ${v2} = ${v1 - v2}.<br>Aralık ${v1 - v2} &times; ${t} = ${(v1 - v2) * t} km'dir.`
+            };
+        },
+
+        'grafik': function() {
+            const labels = ['A', 'B', 'C', 'D'];
+            const values = [15, 5, 25, 5];
+            const toplam = values.reduce((a, b) => a + b, 0);
+            const dogruCevap = values[0] * 100 / toplam;
+            return {
+                text: `Grafikte bir sınıftaki öğrencilerin katıldığı kurslardaki kişi sayısı verilmiştir. A kursuna giden öğrenciler tüm öğrencilerin yüzde kaçıdır?`,
+                visual: barVisual(labels, values, 'Kurslara göre kişi sayısı'),
+                answer: dogruCevap,
+                explanation: `Toplam öğrenci sayısı ${values.join(' + ')} = ${toplam}.<br>A kursuna giden ${values[0]} kişi vardır.<br>${values[0]} / ${toplam} &times; 100 = ${dogruCevap}.`
+            };
+        },
+
+        'mantik': function() {
+            const baslangic = [[3, 2], [4, 2], [4, 3]];
+            const yukari = pick([1, 2]);
+            const sag = pick([2, 3]);
+            const yeni = baslangic.map(([r, c]) => [r - yukari, c + sag]);
+            const dogruCevap = Math.min(...yeni.map(cell => cell[0]));
+            return {
+                text: `Birim karelerden oluşan şekildeki taralı bölge ${yukari} birim yukarı ve ${sag} birim sağa öteleniyor. Yeni şekilde taralı bölgenin en üst satır numarası kaç olur?`,
+                visual: logicGrid(baslangic, 'Başlangıçtaki taralı bölge'),
+                answer: dogruCevap,
+                explanation: `Ötelemede her taralı karenin satırı ${yukari} azalır, sütunu ${sag} artar.<br>Başlangıçta en üst satır 3'tür. ${yukari} birim yukarı ötelenince en üst satır ${dogruCevap} olur.`
+            };
+        }
+    };
+
+    // Soru Seçim Stratejisi
+    function determineNextTopic() {
+        if (currentMode === 'manual') {
+            return selectedTopic;
+        }
+        
+        // Adaptif Mod: En az çözülen veya başarı oranı en düşük konuyu bul
+        let targetKey = 'sayi-kesir';
+        let lowestRate = 101;
+        let minQuestions = Infinity;
+
+        for (let key in topics) {
+            const topic = topics[key];
+            // Hiç çözülmemiş konuya öncelik ver
+            if (topic.count === 0) {
+                return key;
+            }
+            
+            let rate = (topic.correct / topic.count) * 100;
+            if (rate < lowestRate) {
+                lowestRate = rate;
+                targetKey = key;
+            }
+        }
+        return targetKey;
+    }
+
+    function generateNewQuestion() {
+        hasAnswered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('explanation-container').style.display = 'none';
+        if (solutionCtx) {
+            canvasHistory = [];
+            solutionCtx.clearRect(0, 0, solutionCanvas.width, solutionCanvas.height);
+            document.getElementById('canvas-empty').classList.remove('hidden');
+        }
+        
+        const activeTopicKey = determineNextTopic();
+        const activeTopic = topics[activeTopicKey];
+        
+        document.getElementById('current-topic-title').innerText = activeTopic.title;
+        
+        // Soru datası üret
+        currentQuestionData = QuestionFactory[activeTopicKey]();
+        document.getElementById('question-body').innerText = currentQuestionData.text;
+        const visualContainer = document.getElementById('question-visual');
+        if (currentQuestionData.visual) {
+            visualContainer.innerHTML = currentQuestionData.visual;
+            visualContainer.classList.add('active');
+        } else {
+            visualContainer.innerHTML = '';
+            visualContainer.classList.remove('active');
+        }
+
+        // Çeldirici Seçenek Üretimi (Şıkları Karıştır)
+        const ans = currentQuestionData.answer;
+        const optionsSet = new Set([ans]);
+        
+        while(optionsSet.size < 4) {
+            let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+            if(ans > 10) {
+                // Büyük sayılarda mantıklı yakın şıklar üret
+                offset = (Math.floor(Math.random() * 4) + 1) * (ans % 10 === 0 ? 10 : 2);
+                if(Math.random() > 0.5) offset = -offset;
+            }
+            const fake = ans + offset;
+            if (fake > 0 && fake !== ans) {
+                optionsSet.add(fake);
+            }
+        }
+
+        const optionsArray = Array.from(optionsSet).sort((a, b) => a - b);
+        const prefixes = ['A', 'B', 'C', 'D'];
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        optionsArray.forEach((val, index) => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.dataset.value = String(val);
+            card.innerHTML = `<span class="option-prefix">${prefixes[index]}</span> ${val}`;
+            card.onclick = () => checkAnswer(card, val, ans, activeTopicKey);
+            optionsContainer.appendChild(card);
+        });
+    }
+
+    function checkAnswer(selectedCard, clickedValue, correctValue, topicKey) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+
+        topics[topicKey].count++;
+        
+        const cards = document.getElementsByClassName('option-card');
+        
+        if (clickedValue === correctValue) {
+            selectedCard.classList.add('correct');
+            topics[topicKey].correct++;
+        } else {
+            selectedCard.classList.add('wrong');
+            // Doğru şıkkı yeşil yak
+            for(let card of cards) {
+                if(Number(card.dataset.value) === correctValue) {
+                    card.classList.add('correct');
+                }
+            }
+        }
+
+        // Çözümü Göster
+        document.getElementById('explanation-body').innerHTML = currentQuestionData.explanation;
+        document.getElementById('explanation-container').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'block';
+
+        saveStats();
+        updateUI();
+    }
+
+    // İlk Açılış Tetikleyicileri
+    window.onload = function() {
+        loadStats();
+        initCanvas();
+        updateUI();
+        generateNewQuestion();
+    };
+</script>
+
+</body>
+</html>
