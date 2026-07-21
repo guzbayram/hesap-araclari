@@ -125,7 +125,7 @@
     .strategy .step{padding:14px 12px;}
     main{padding-left:18px; padding-right:18px;}
     .p-row{gap:8px;}
-    .p-row input[type="number"]{width:100px; flex:1 1 100px;}
+    .p-answer{width:100px; flex:1 1 100px;}
     .p-row button{padding:11px 16px; flex:1 1 auto;}
     .p-row button.skip{flex:1 1 auto;}
     .scratch-canvas{height:130px;}
@@ -374,7 +374,7 @@
   }
   .p-question b{color:var(--blue-deep);}
   .p-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
-  .p-row input[type="number"]{
+  .p-answer{
     width:120px;
     font-family:'JetBrains Mono',monospace;
     font-size:16px;
@@ -383,8 +383,11 @@
     border-radius:9px;
     background:var(--paper);
     color:var(--ink);
+    touch-action:manipulation;
+    -webkit-user-select:text;
+    user-select:text;
   }
-  .p-row input[type="number"]:focus{outline:none; border-color:var(--blue);}
+  .p-answer:focus{outline:none; border-color:var(--blue);}
   .p-row button{
     font-family:'Source Sans 3',sans-serif;
     font-weight:600; font-size:14.5px;
@@ -398,6 +401,34 @@
     background:transparent; color:var(--muted); border:1px solid var(--line);
   }
   .p-row button.skip:hover{background:var(--paper-deep); color:var(--ink);}
+
+  .answer-pad{
+    display:grid;
+    grid-template-columns:repeat(6, minmax(0,1fr));
+    gap:8px;
+    margin:12px 0 14px 0;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+  }
+  .answer-key{
+    min-height:40px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'JetBrains Mono',monospace;
+    font-size:17px;
+    font-weight:600;
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+  .answer-key:active{background:var(--paper-deep);}
+  .answer-key.utility{
+    font-family:'Source Sans 3',sans-serif;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
 
   .p-feedback{
     margin-top:14px; font-size:14.5px; min-height:22px; font-weight:600;
@@ -1463,8 +1494,15 @@ function buildPracticeUI(i){
           </div>
           <canvas class="scratch-canvas" id="canvas-${i}"></canvas>
         </div>
+        <div class="answer-pad" aria-label="Cevap rakamları">
+          ${['1','2','3','4','5','sil','6','7','8','9','0',','].map(key => `
+            <button class="answer-key ${key==='sil'?'utility':''}" type="button" data-key="${key}" aria-label="${key==='sil'?'Son rakamı sil':key}">
+              ${key==='sil'?'⌫':key}
+            </button>
+          `).join('')}
+        </div>
         <div class="p-row">
-          <input type="number" inputmode="numeric" id="pin-${i}" placeholder="cevap">
+          <input class="p-answer" type="text" inputmode="none" enterkeyhint="done" autocomplete="off" autocorrect="off" id="pin-${i}" placeholder="cevap">
           <button id="pbtn-${i}">Kontrol Et</button>
           <button class="skip" id="pskip-${i}" type="button">Soruyu Değiştir</button>
         </div>
@@ -1484,6 +1522,9 @@ function buildPracticeUI(i){
 
   document.getElementById(`pbtn-${i}`).addEventListener('click', ()=>checkAnswer(i));
   document.getElementById(`pin-${i}`).addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkAnswer(i); });
+  document.querySelectorAll(`#practice-${i} .answer-key`).forEach(btn=>{
+    btn.addEventListener('click', ()=>pressAnswerKey(i, btn.dataset.key));
+  });
   document.getElementById(`pskip-${i}`).addEventListener('click', ()=>{ newProblem(i); });
 
   try{ setupScratchPad(i); } catch(err){ console.warn('scratch pad init failed for topic', i, err); }
@@ -1610,17 +1651,34 @@ function newProblem(i){
   const qEl = document.getElementById(`pq-${i}`);
   if(qEl) qEl.innerHTML = problem.text;
   const inEl = document.getElementById(`pin-${i}`);
-  if(inEl){ inEl.value=''; inEl.focus({preventScroll:true}); }
+  if(inEl) inEl.value='';
   const fb = document.getElementById(`pfb-${i}`);
   if(fb){ fb.textContent=''; fb.className='p-feedback'; }
   if(SCRATCH[i]) SCRATCH[i].clear();
+}
+
+function pressAnswerKey(i, key){
+  const inEl = document.getElementById(`pin-${i}`);
+  if(!inEl) return;
+  if(key === 'sil'){
+    inEl.value = inEl.value.slice(0, -1);
+  } else if(key === ','){
+    if(!/[,.]/.test(inEl.value)) inEl.value += ',';
+  } else {
+    inEl.value += key;
+  }
+}
+
+function readAnswerValue(input){
+  return parseFloat(input.trim().replace(',', '.'));
 }
 
 function checkAnswer(i){
   const inEl = document.getElementById(`pin-${i}`);
   const fb = document.getElementById(`pfb-${i}`);
   if(!inEl.value.trim()){ return; }
-  const val = parseFloat(inEl.value);
+  const val = readAnswerValue(inEl.value);
+  if(Number.isNaN(val)) return;
   const correct = Math.abs(val - state.current[i]) < 1e-9;
 
   if(correct){
