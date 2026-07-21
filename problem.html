@@ -1809,37 +1809,59 @@ function setupScratchPad(i){
   let activePointerId = null;
   let toolMode = 'pen';
   let colorName = 'blue';
+  let pixelScale = window.devicePixelRatio || 1;
 
   function colorHex(name){
     const varName = {blue:'--blue', rust:'--rust', green:'--green'}[name];
     return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   }
 
-  function sizeCanvas(){
+  function sizeCanvas(preserve=false){
     const rect = canvas.getBoundingClientRect();
     const ratio = window.devicePixelRatio || 1;
-    canvas.width = Math.max(1, rect.width * ratio);
-    canvas.height = Math.max(1, rect.height * ratio);
-    ctx.setTransform(ratio,0,0,ratio,0,0);
+    const nextWidth = Math.max(1, Math.round(rect.width * ratio));
+    const nextHeight = Math.max(1, Math.round(rect.height * ratio));
+    if(canvas.width === nextWidth && canvas.height === nextHeight) return;
+    let previous = null;
+    if(preserve && canvas.width > 1 && canvas.height > 1){
+      previous = document.createElement('canvas');
+      previous.width = canvas.width;
+      previous.height = canvas.height;
+      previous.getContext('2d').drawImage(canvas, 0, 0);
+    }
+    const oldWidth = canvas.width;
+    const oldHeight = canvas.height;
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    pixelScale = ratio;
+    ctx.setTransform(1,0,0,1,0,0);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    if(previous && oldWidth > 1 && oldHeight > 1){
+      ctx.drawImage(previous, 0, 0, oldWidth, oldHeight, 0, 0, nextWidth, nextHeight);
+    }
   }
   sizeCanvas();
 
   function localPos(e){
     const rect = canvas.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const cssX = e.clientX - rect.left;
+    const cssY = e.clientY - rect.top;
+    return {
+      x: cssX * (canvas.width / rect.width),
+      y: cssY * (canvas.height / rect.height)
+    };
   }
 
   function drawStroke(from, to){
     ctx.beginPath();
     if(toolMode === 'eraser'){
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = 20;
+      ctx.lineWidth = 20 * pixelScale;
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = colorHex(colorName);
-      ctx.lineWidth = 2.6;
+      ctx.lineWidth = 2.6 * pixelScale;
     }
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
@@ -1854,6 +1876,7 @@ function setupScratchPad(i){
 
   canvas.addEventListener('pointerdown', (e)=>{
     if(window.getSelection) window.getSelection().removeAllRanges();
+    sizeCanvas(true);
     activePointerId = e.pointerId;
     drawing = true;
     last = localPos(e);
@@ -1881,6 +1904,12 @@ function setupScratchPad(i){
   canvas.addEventListener('pointerleave', stop, {passive:false});
   canvas.addEventListener('pointercancel', stop, {passive:false});
   canvas.addEventListener('lostpointercapture', stop, {passive:false});
+  if(window.ResizeObserver){
+    const ro = new ResizeObserver(()=>{ if(!drawing) sizeCanvas(true); });
+    ro.observe(canvas);
+  } else {
+    window.addEventListener('resize', ()=>{ if(!drawing) sizeCanvas(true); });
+  }
 
   const swatches = wrap.querySelectorAll('.swatch');
   const eraserBtn = wrap.querySelector('.eraser-btn');
