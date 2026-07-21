@@ -96,17 +96,21 @@
     .mobile-topbar-spacer{display:block; height:64px;}
 
     .sidebar{
-      position:fixed; top:0; left:0; height:100vh; width:min(82vw,300px);
-      transform:translateX(-100%);
+      position:fixed; left:0; right:0; bottom:0; top:auto;
+      width:100%; height:auto; max-height:82vh;
+      transform:translateY(110%);
       transition:transform .28s ease;
       z-index:60;
       background:var(--paper);
       box-shadow:0 0 0 rgba(0,0,0,0);
-      padding-top:74px;
+      padding:24px 22px 28px 22px;
+      border-right:none;
+      border-top:1px solid var(--line);
+      border-radius:20px 20px 0 0;
     }
     .shell.nav-open .sidebar{
-      transform:translateX(0);
-      box-shadow:8px 0 30px rgba(0,0,0,.18);
+      transform:translateY(0);
+      box-shadow:0 -12px 34px rgba(0,0,0,.22);
     }
     .shell.nav-open .sidebar-overlay{
       display:block; opacity:1; pointer-events:auto;
@@ -180,6 +184,90 @@
     font-weight:600;
   }
   nav li a.active .num{color:var(--blue);}
+
+  .settings-panel{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+  .setting-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin:10px 0;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .sound-toggle{
+    position:relative;
+    width:48px;
+    height:28px;
+    border:none;
+    border-radius:999px;
+    background:var(--line);
+    cursor:pointer;
+    flex:none;
+  }
+  .sound-toggle::after{
+    content:"";
+    position:absolute;
+    top:4px; left:4px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--card);
+    box-shadow:0 1px 4px rgba(0,0,0,.18);
+    transition:transform .18s ease;
+  }
+  .sound-toggle.on{background:var(--green);}
+  .sound-toggle.on::after{transform:translateX(20px);}
+  .data-note{
+    margin:10px 0 0;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .side-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+  .side-stat{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:8px 10px;
+  }
+  .side-stat b{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px;
+    color:var(--blue-deep);
+  }
+  .side-stat span{
+    font-size:11.5px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+
+  @media (max-width:900px){
+    .shell .sidebar{
+      position:fixed;
+      left:0; right:0; bottom:0; top:auto;
+      width:100%;
+      height:auto;
+      max-height:82vh;
+      transform:translateY(110%);
+      padding:24px 22px 28px 22px;
+      border-right:none;
+      border-top:1px solid var(--line);
+      border-radius:20px 20px 0 0;
+      overflow-y:auto;
+    }
+    .shell.nav-open .sidebar{transform:translateY(0);}
+  }
 
   /* ---------- MAIN ---------- */
   main{padding:56px 48px 100px 48px;}
@@ -427,7 +515,8 @@
   .answer-key:active{background:var(--paper-deep);}
   .answer-key.utility{
     font-family:'Source Sans 3',sans-serif;
-    font-size:13px;
+    font-size:24px;
+    line-height:1;
     color:var(--ink-soft);
   }
 
@@ -581,6 +670,39 @@
     height:100%; width:10%; background:linear-gradient(90deg,var(--blue),var(--green));
     border-radius:5px; transition:width .3s ease;
   }
+
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:12px;
+    margin-top:20px;
+    max-width:760px;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+  }
+  .stat-card b{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:21px;
+    color:var(--blue-deep);
+    line-height:1.2;
+  }
+  .stat-card span{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-weight:700;
+  }
+  @media (max-width:640px){
+    .stats-grid{grid-template-columns:1fr 1fr;}
+  }
 </style>
 </head>
 <body>
@@ -621,6 +743,19 @@
         <li><a href="#grafik" class="nav-link"><span class="num">10</span>Grafik Problemleri<span class="badge" data-badge="9"></span></a></li>
       </ul>
     </nav>
+
+    <div class="settings-panel">
+      <div class="navgroup-label">Ayarlar</div>
+      <div class="setting-row">
+        <span>Doğru / yanlış sesi</span>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-label="Bildirim sesini aç/kapat" aria-pressed="true"></button>
+      </div>
+      <p class="data-note">İlerleme, yanlış cevap geçmişi ve ses tercihi bu tarayıcıda 30 gün saklanır.</p>
+      <div class="side-stats">
+        <div class="side-stat"><b id="sideSolved">0</b><span>Çözülen</span></div>
+        <div class="side-stat"><b id="sideRate">%0</b><span>Başarı</span></div>
+      </div>
+    </div>
   </aside>
 
   <!-- MAIN -->
@@ -634,6 +769,12 @@
       <div class="overview">
         <span id="overview-text">0 / 10 tip ustalaşıldı</span>
         <div class="obar"><div class="obar-fill" id="overview-fill"></div></div>
+      </div>
+      <div class="stats-grid" aria-label="Pratik istatistikleri">
+        <div class="stat-card"><b id="statSolved">0</b><span>Toplam Soru</span></div>
+        <div class="stat-card"><b id="statCorrect">0</b><span>Doğru</span></div>
+        <div class="stat-card"><b id="statWrong">0</b><span>Yanlış</span></div>
+        <div class="stat-card"><b id="statRate">%0</b><span>Başarı</span></div>
       </div>
     </div>
 
@@ -1163,6 +1304,8 @@ Daire grafik  → bütünün PAYLARI (toplam = 360° ya da %100)
 
 const MIN_ATTEMPTS = 20;
 const PASS_RATE = 85;
+const STORAGE_KEY = 'problem-pusulasi-progress-v1';
+const STORAGE_TTL = 30 * 24 * 60 * 60 * 1000;
 
 const TOPIC_META = [
   {key:'oran-oranti', name:'Oran & Orantı'},
@@ -1501,8 +1644,59 @@ const state = {
   current: new Array(10).fill(null),
   submitted: new Array(10).fill(false),
   history: Array.from({length:10}, () => []),
+  settings: {
+    sound: true
+  }
 };
 state.unlocked[0] = true;
+
+function saveProgress(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      state: {
+        answered: state.answered,
+        correct: state.correct,
+        unlocked: state.unlocked,
+        mastered: state.mastered,
+        current: state.current,
+        history: state.history,
+        settings: state.settings
+      }
+    }));
+  }catch(e){}
+}
+
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    if(!saved.savedAt || Date.now() - saved.savedAt > STORAGE_TTL){
+      localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    const s = saved.state || {};
+    ['answered','correct','unlocked','mastered','current','history'].forEach(key=>{
+      if(Array.isArray(s[key]) && s[key].length === TOPIC_META.length) state[key] = s[key];
+    });
+    if(s.settings && typeof s.settings.sound === 'boolean') state.settings.sound = s.settings.sound;
+    state.unlocked[0] = true;
+  }catch(e){}
+}
+
+function totalAnswered(){
+  return state.answered.reduce((sum,n)=>sum+n,0);
+}
+
+function totalCorrect(){
+  return state.correct.reduce((sum,n)=>sum+n,0);
+}
+
+function totalRate(){
+  const total = totalAnswered();
+  return total ? Math.round((totalCorrect()/total)*100) : 0;
+}
 
 function toast(msg){
   const el = document.getElementById('toast');
@@ -1510,6 +1704,36 @@ function toast(msg){
   el.classList.add('show');
   clearTimeout(el._t);
   el._t = setTimeout(()=>el.classList.remove('show'), 3200);
+}
+
+let audioCtx = null;
+function playFeedbackSound(ok){
+  if(!state.settings.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = ok ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(ok ? 740 : 180, now);
+    if(ok) osc.frequency.exponentialRampToValueAtTime(980, now + .12);
+    else osc.frequency.exponentialRampToValueAtTime(120, now + .18);
+    gain.gain.setValueAtTime(.0001, now);
+    gain.gain.exponentialRampToValueAtTime(.08, now + .015);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + (ok ? .16 : .22));
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + (ok ? .17 : .23));
+  }catch(e){}
+}
+
+function updateSoundToggle(){
+  const btn = document.getElementById('soundToggle');
+  if(!btn) return;
+  btn.classList.toggle('on', state.settings.sound);
+  btn.setAttribute('aria-pressed', String(state.settings.sound));
 }
 
 function buildPracticeUI(i){
@@ -1569,7 +1793,9 @@ function buildPracticeUI(i){
   document.getElementById(`preview-${i}`).addEventListener('click', ()=>toggleReview(i));
 
   try{ setupScratchPad(i); } catch(err){ console.warn('scratch pad init failed for topic', i, err); }
-  newProblem(i);
+  if(state.current[i]) renderCurrentProblem(i);
+  else newProblem(i);
+  renderReview(i);
   refreshLockUI(i);
 }
 
@@ -1685,21 +1911,28 @@ function setupScratchPad(i){
   };
 }
 
-function newProblem(i){
-  const gen = GENERATORS[i];
-  const problem = gen();
-  state.current[i] = problem;
-  state.submitted[i] = false;
+function renderCurrentProblem(i){
+  const problem = state.current[i];
   const qEl = document.getElementById(`pq-${i}`);
-  if(qEl) qEl.innerHTML = problem.text;
+  if(qEl && problem) qEl.innerHTML = problem.text;
   const inEl = document.getElementById(`pin-${i}`);
   if(inEl) inEl.value='';
   const btn = document.getElementById(`pbtn-${i}`);
   if(btn) btn.disabled = false;
   const fb = document.getElementById(`pfb-${i}`);
   if(fb){ fb.textContent=''; fb.className='p-feedback'; }
-  if(SCRATCH[i]) SCRATCH[i].clear();
+  state.submitted[i] = false;
   updateScoreUI(i);
+}
+
+function newProblem(i){
+  const gen = GENERATORS[i];
+  const problem = gen();
+  state.current[i] = problem;
+  state.submitted[i] = false;
+  renderCurrentProblem(i);
+  if(SCRATCH[i]) SCRATCH[i].clear();
+  saveProgress();
 }
 
 function pressAnswerKey(i, key){
@@ -1787,6 +2020,7 @@ function checkAnswer(i){
   state.answered[i] += 1;
   if(isCorrect) state.correct[i] += 1;
   addHistory(i, userAnswer, isCorrect);
+  playFeedbackSound(isCorrect);
 
   if(isCorrect){
     fb.textContent = '✓ Doğru!';
@@ -1811,6 +2045,7 @@ function checkAnswer(i){
   updateScoreUI(i);
   updateBadges();
   updateOverview();
+  saveProgress();
   setTimeout(()=>newProblem(i), isCorrect ? 650 : 2300);
 }
 
@@ -1850,6 +2085,24 @@ function updateOverview(){
   const count = state.mastered.filter(Boolean).length;
   document.getElementById('overview-text').textContent = `${count} / ${TOPIC_META.length} tip ustalaşıldı`;
   document.getElementById('overview-fill').style.width = `${(count/TOPIC_META.length)*100}%`;
+  updateStatsUI();
+}
+
+function updateStatsUI(){
+  const solved = totalAnswered();
+  const correct = totalCorrect();
+  const wrong = solved - correct;
+  const rate = totalRate();
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+  };
+  set('statSolved', solved);
+  set('statCorrect', correct);
+  set('statWrong', wrong);
+  set('statRate', `%${rate}`);
+  set('sideSolved', solved);
+  set('sideRate', `%${rate}`);
 }
 
 /* ---------- MOBILE NAV DRAWER ---------- */
@@ -1880,7 +2133,18 @@ function updateOverview(){
 })();
 
 /* ---------- INIT ---------- */
+loadProgress();
 TOPIC_META.forEach((m,i)=> buildPracticeUI(i));
+updateSoundToggle();
+const soundToggle = document.getElementById('soundToggle');
+if(soundToggle){
+  soundToggle.addEventListener('click', ()=>{
+    state.settings.sound = !state.settings.sound;
+    updateSoundToggle();
+    saveProgress();
+    if(state.settings.sound) playFeedbackSound(true);
+  });
+}
 updateBadges();
 updateOverview();
 </script>
