@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem Çözme Rehberi — TYT Matematik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F3EA;
+    --paper-deep:#F0E9DA;
+    --ink:#22252B;
+    --ink-soft:#4B4B47;
+    --blue:#2E5C8A;
+    --blue-deep:#1E3F63;
+    --rust:#C1502E;
+    --green:#4F7942;
+    --muted:#9C9284;
+    --line:#DDD3BE;
+    --card:#FFFDF8;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Sans 3', sans-serif;
+    font-size:16.5px;
+    line-height:1.6;
+  }
+  ::selection{background:var(--blue); color:#fff;}
+
+  h1,h2,h3,h4{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0 0 .4em 0;
+    color:var(--ink);
+  }
+
+  .formula, .mono{
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  a{color:var(--blue);}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns:272px 1fr;
+    max-width:1280px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{position:relative; height:auto; top:0;}
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    position:sticky; top:0; height:100vh;
+    padding:34px 22px 24px 30px;
+    border-right:1px solid var(--line);
+    overflow-y:auto;
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:8px;
+    margin-bottom:6px;
+  }
+  .brand .mark{
+    width:30px; height:30px;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:700; font-size:15px;
+    flex:none;
+  }
+  .brand-text{font-family:'Fraunces',serif; font-weight:600; font-size:17px;}
+  .brand-sub{
+    font-size:12.5px; color:var(--muted); margin:0 0 26px 38px; letter-spacing:.02em;
+  }
+
+  .navgroup-label{
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); margin:20px 0 8px 0; font-weight:600;
+  }
+  nav ul{list-style:none; margin:0; padding:0;}
+  nav li a{
+    display:flex; align-items:center; gap:10px;
+    text-decoration:none; color:var(--ink-soft);
+    font-size:14.5px; padding:7px 8px; border-radius:8px;
+    border-left:2px solid transparent;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  nav li a .num{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);
+    width:20px; flex:none;
+  }
+  nav li a:hover{background:var(--paper-deep); color:var(--ink);}
+  nav li a.active{
+    background:var(--paper-deep);
+    color:var(--blue-deep);
+    border-left:2px solid var(--blue);
+    font-weight:600;
+  }
+  nav li a.active .num{color:var(--blue);}
+
+  /* ---------- MAIN ---------- */
+  main{padding:56px 48px 100px 48px;}
+  @media (max-width:900px){ main{padding:40px 22px 80px 22px;} }
+
+  .hero{
+    max-width:760px;
+    margin-bottom:64px;
+  }
+  .eyebrow{
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--blue); font-weight:700; margin-bottom:14px;
+  }
+  .hero h1{
+    font-size:clamp(32px,4.4vw,46px);
+    line-height:1.12;
+    max-width:14ch;
+  }
+  .hero p.lead{
+    font-size:18px; color:var(--ink-soft); max-width:58ch; margin-top:18px;
+  }
+
+  /* Universal strategy strip */
+  .strategy{
+    margin-top:40px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  @media (max-width:760px){ .strategy{grid-template-columns:1fr 1fr;} }
+  .strategy .step{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 16px;
+    position:relative;
+  }
+  .strategy .step .n{
+    font-family:'Fraunces',serif; font-weight:700; font-size:26px;
+    color:var(--blue); opacity:.85;
+  }
+  .strategy .step h4{font-size:14.5px; margin:8px 0 4px 0;}
+  .strategy .step p{font-size:13px; color:var(--ink-soft); margin:0;}
+
+  /* ---------- TOPIC SECTIONS ---------- */
+  section.topic{
+    max-width:820px;
+    padding-top:70px;
+    margin-top:6px;
+    border-top:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+  section.topic:first-of-type{border-top:none;}
+
+  .topic-head{margin-bottom:28px;}
+  .topic-head .eyebrow{color:var(--rust);}
+  .topic-head h2{font-size:clamp(24px,3vw,32px);}
+  .topic-head .desc{color:var(--ink-soft); font-size:16px; max-width:60ch; margin-top:8px;}
+
+  .grid-2{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:26px 0;
+  }
+  @media (max-width:640px){ .grid-2{grid-template-columns:1fr;} }
+
+  .box{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .box h4{
+    font-family:'Source Sans 3',sans-serif;
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.09em;
+    color:var(--muted); margin-bottom:12px; font-weight:700;
+  }
+  .box.cues h4::before{content:"🔎  ";}
+  .box.formula h4::before{content:"∑  ";}
+  .box ul{margin:0; padding-left:18px;}
+  .box li{margin-bottom:6px; font-size:15px;}
+  .formula-block{
+    font-family:'JetBrains Mono',monospace;
+    background:var(--paper-deep);
+    border-radius:9px;
+    padding:12px 14px;
+    font-size:14.5px;
+    color:var(--blue-deep);
+    line-height:1.7;
+    overflow-x:auto;
+  }
+
+  .steps{
+    counter-reset:step;
+    margin:26px 0;
+    display:flex; flex-direction:column; gap:0;
+  }
+  .steps .s{
+    display:grid; grid-template-columns:44px 1fr; gap:14px;
+    padding:14px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .steps .s:last-child{border-bottom:none;}
+  .steps .s .idx{
+    counter-increment:step;
+    font-family:'Fraunces',serif; font-weight:700; color:var(--blue);
+    font-size:20px;
+  }
+  .steps .s .idx::before{content: counter(step, decimal-leading-zero);}
+  .steps .s h4{font-size:15.5px; margin:0 0 3px 0;}
+  .steps .s p{margin:0; font-size:14.5px; color:var(--ink-soft);}
+
+  .example{
+    background:linear-gradient(180deg,var(--card),var(--paper-deep) 130%);
+    border:1px solid var(--line);
+    border-left:4px solid var(--blue);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin:24px 0;
+  }
+  .example h4{
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.09em;
+    color:var(--blue-deep); margin-bottom:10px; font-weight:700;
+  }
+  .example p{margin:0 0 10px 0; font-size:15px;}
+  .example .ans{
+    margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);
+    font-size:14.5px; color:var(--ink-soft);
+  }
+  .example .ans b{color:var(--green);}
+
+  .mistake{
+    display:grid; grid-template-columns:34px 1fr; gap:12px;
+    background:#FBF0EC;
+    border:1px solid #EBC9BB;
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin:20px 0;
+  }
+  .mistake .ic{font-size:19px; line-height:1;}
+  .mistake h4{
+    color:var(--rust); font-size:13px; text-transform:uppercase;
+    letter-spacing:.07em; margin:0 0 5px 0; font-weight:700;
+  }
+  .mistake p{margin:0; font-size:14.5px; color:var(--ink-soft);}
+
+  footer{
+    max-width:820px; margin-top:80px; padding-top:26px;
+    border-top:1px solid var(--line);
+    color:var(--muted); font-size:13px;
+  }
+
+  /* scroll reveal */
+  .topic{opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
+  .topic.visible{opacity:1; transform:none;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .topic{opacity:1; transform:none; transition:none;}
+  }
+
+  /* ---------- NAV BADGES ---------- */
+  nav li a{position:relative;}
+  .badge{
+    margin-left:auto; font-size:11px; font-family:'JetBrains Mono',monospace;
+    color:var(--muted); flex:none; padding-left:6px;
+  }
+  .badge.done{color:var(--green); font-weight:700;}
+  .badge.lock{color:var(--muted);}
+  .badge.active{color:var(--blue-deep); font-weight:700;}
+
+  /* ---------- PRACTICE WIDGET ---------- */
+  .practice{
+    position:relative;
+    margin:26px 0 10px 0;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    overflow:hidden;
+  }
+  .practice::before{
+    content:"PRATİK";
+    position:absolute; top:14px; right:18px;
+    font-size:11px; letter-spacing:.12em; font-weight:700;
+    color:var(--muted);
+  }
+  .practice h4.p-title{
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.09em;
+    color:var(--blue-deep); margin:0 0 16px 0; font-weight:700;
+  }
+  .p-question{
+    font-size:16.5px; line-height:1.55; margin-bottom:18px; min-height:52px;
+  }
+  .p-question b{color:var(--blue-deep);}
+  .p-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .p-row input[type="number"]{
+    width:120px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px;
+    padding:9px 12px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .p-row input[type="number"]:focus{outline:none; border-color:var(--blue);}
+  .p-row button{
+    font-family:'Source Sans 3',sans-serif;
+    font-weight:600; font-size:14.5px;
+    background:var(--blue); color:#fff;
+    border:none; border-radius:9px;
+    padding:10px 18px; cursor:pointer;
+    transition:background .15s;
+  }
+  .p-row button:hover{background:var(--blue-deep);}
+  .p-row button.skip{
+    background:transparent; color:var(--muted); border:1px solid var(--line);
+  }
+  .p-row button.skip:hover{background:var(--paper-deep); color:var(--ink);}
+
+  .p-feedback{
+    margin-top:14px; font-size:14.5px; min-height:22px; font-weight:600;
+  }
+  .p-feedback.ok{color:var(--green);}
+  .p-feedback.no{color:var(--rust);}
+
+  .p-progress-wrap{
+    display:flex; align-items:center; gap:12px; margin-top:20px;
+  }
+  .p-streak-label{
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .p-bar{
+    flex:1; height:8px; background:var(--paper-deep);
+    border-radius:5px; overflow:hidden;
+  }
+  .p-bar-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg,var(--blue),var(--green));
+    border-radius:5px;
+    transition:width .25s ease;
+  }
+
+  .practice.mastered{border-color:var(--green);}
+  .practice.mastered::after{
+    content:"✓ Bu tipte 30 art arda doğru yaptın";
+    display:block; margin-top:14px; font-size:13px; color:var(--green); font-weight:600;
+  }
+
+  /* ---------- SCRATCH PAD (çözüm alanı) ---------- */
+  .scratch{margin:6px 0 20px 0;}
+  .scratch-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--muted); font-weight:700; margin-bottom:7px;
+  }
+  .scratch-toolbar{
+    display:flex; align-items:center; gap:9px; margin-bottom:8px;
+  }
+  .swatch{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--c);
+    border:2px solid transparent;
+    cursor:pointer; padding:0; flex:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+  }
+  .swatch.active{border-color:var(--ink); transform:scale(1.12);}
+  .scratch-toolbar .sep{width:1px; height:20px; background:var(--line); margin:0 3px;}
+  .tool-btn{
+    font-family:'Source Sans 3',sans-serif;
+    font-size:12.5px; font-weight:600;
+    padding:5px 12px; border-radius:7px;
+    border:1px solid var(--line); background:var(--paper);
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .tool-btn:hover{background:var(--paper-deep);}
+  .tool-btn.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .scratch-canvas{
+    display:block; width:100%; height:150px;
+    background-color:var(--card);
+    background-image:
+      linear-gradient(rgba(34,37,43,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,37,43,.05) 1px, transparent 1px);
+    background-size:18px 18px;
+    border:1.5px dashed var(--line);
+    border-radius:10px;
+    cursor:crosshair;
+    touch-action:none;
+  }
+
+  /* Lock overlay */
+  .practice.locked .p-inner{filter:blur(4px); pointer-events:none; user-select:none;}
+  .lock-overlay{
+    position:absolute; inset:0;
+    background:rgba(247,243,234,.86);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:20px; gap:6px;
+    border-radius:var(--radius);
+  }
+  .lock-overlay .ic{font-size:26px;}
+  .lock-overlay .msg{font-size:14.5px; color:var(--ink-soft); max-width:38ch;}
+  .lock-overlay .msg b{color:var(--ink);}
+
+  /* Toast */
+  #toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--blue-deep); color:#fff;
+    padding:14px 22px; border-radius:11px;
+    font-size:14.5px; font-weight:600;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease, transform .3s ease;
+    z-index:50;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* Overview progress under hero */
+  .overview{
+    margin-top:26px; display:flex; align-items:center; gap:14px;
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft);
+  }
+  .overview .obar{
+    flex:1; max-width:260px; height:8px; background:var(--paper-deep);
+    border-radius:5px; overflow:hidden;
+  }
+  .overview .obar-fill{
+    height:100%; width:10%; background:linear-gradient(90deg,var(--blue),var(--green));
+    border-radius:5px; transition:width .3s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">π</div>
+      <div class="brand-text">Problem Pusulası</div>
+    </div>
+    <p class="brand-sub">TYT Matematik · Sözel Problemler</p>
+
+    <div class="navgroup-label">Başlarken</div>
+    <nav>
+      <ul>
+        <li><a href="#strateji" class="nav-link"><span class="num">00</span>Genel Strateji</a></li>
+      </ul>
+    </nav>
+
+    <div class="navgroup-label">Problem Tipleri</div>
+    <nav>
+      <ul>
+        <li><a href="#oran-oranti" class="nav-link"><span class="num">01</span>Oran &amp; Orantı<span class="badge" data-badge="0"></span></a></li>
+        <li><a href="#sayi" class="nav-link"><span class="num">02</span>Sayı Problemleri<span class="badge" data-badge="1"></span></a></li>
+        <li><a href="#kesir" class="nav-link"><span class="num">03</span>Kesir Problemleri<span class="badge" data-badge="2"></span></a></li>
+        <li><a href="#yas" class="nav-link"><span class="num">04</span>Yaş Problemleri<span class="badge" data-badge="3"></span></a></li>
+        <li><a href="#isci" class="nav-link"><span class="num">05</span>İşçi Problemleri<span class="badge" data-badge="4"></span></a></li>
+        <li><a href="#yuzde" class="nav-link"><span class="num">06</span>Yüzde Problemleri<span class="badge" data-badge="5"></span></a></li>
+        <li><a href="#kar-zarar" class="nav-link"><span class="num">07</span>Kâr–Zarar Problemleri<span class="badge" data-badge="6"></span></a></li>
+        <li><a href="#karisim" class="nav-link"><span class="num">08</span>Karışım Problemleri<span class="badge" data-badge="7"></span></a></li>
+        <li><a href="#hareket" class="nav-link"><span class="num">09</span>Hareket Problemleri<span class="badge" data-badge="8"></span></a></li>
+        <li><a href="#grafik" class="nav-link"><span class="num">10</span>Grafik Problemleri<span class="badge" data-badge="9"></span></a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <div class="hero">
+      <div class="eyebrow">Bir matematik eğitim uzmanının notları</div>
+      <h1>Problemi çözemiyorsan, sorun matematik değil — tanıma sorunu.</h1>
+      <p class="lead">TYT sözel problemlerinin neredeyse tamamı, aslında sadece 10 kalıptan birine girer. Her kalıbın kendine has bir "tanıma parmak izi" ve sabit bir çözüm iskeleti vardır. Bu rehber, sana her problemi sıfırdan icat etmek yerine, hangi kalıba girdiğini tanıyıp o kalıbın hazır iskeletini uygulamayı öğretir.</p>
+      <p class="lead" style="font-size:15px; margin-top:10px;">Her konunun altında <b>sınırsız pratik sorusu</b> üretilir. Bir tipte <b>30 soruyu art arda doğru</b> yapınca sıradaki tip açılır — sırayla ilerle.</p>
+      <div class="overview">
+        <span id="overview-text">0 / 10 tip ustalaşıldı</span>
+        <div class="obar"><div class="obar-fill" id="overview-fill"></div></div>
+      </div>
+    </div>
+
+    <section id="strateji" class="topic" style="border-top:none; padding-top:0;">
+      <div class="topic-head">
+        <div class="eyebrow" style="color:var(--blue);">00 · Her problemde geçerli</div>
+        <h2>Evrensel 4 Adım</h2>
+        <p class="desc">Hangi problem tipi olursa olsun — yaş, işçi, hareket fark etmez — çözüme geçmeden önce bu dört adımı sırayla uygula. Öğrencilerin çoğu 2. adımı atladığı için takılır.</p>
+      </div>
+
+      <div class="strategy">
+        <div class="step">
+          <div class="n">01</div>
+          <h4>Oku ve resmi çiz</h4>
+          <p>Problemi bir kere hızlı, bir kere yavaş oku. Mümkünse anlatılan durumu kağıda basit bir şekil/tablo olarak çiz. Sayılara değil, olaya odaklan.</p>
+        </div>
+        <div class="step">
+          <div class="n">02</div>
+          <h4>Bilinmeyeni adlandır</h4>
+          <p>"Ne soruluyor?" sorusunun cevabına x de. Bilinmeyen birden fazlaysa, hepsini TEK bir x cinsinden yazmaya çalış.</p>
+        </div>
+        <div class="step">
+          <div class="n">03</div>
+          <h4>Kalıbı tanı</h4>
+          <p>Aşağıdaki 10 tipten hangisinin anahtar kelimeleriyle eşleştiğine bak. Doğru kalıp = doğru formül seti.</p>
+        </div>
+        <div class="step">
+          <div class="n">04</div>
+          <h4>Kur, çöz, süz</h4>
+          <p>Denklemi kur, çöz — ama cevabı yazmadan önce mutlaka soruya geri dön: "gerçekten bu mu soruldu?" diye kontrol et.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 ORAN-ORANTI -->
+    <section id="oran-oranti" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">01</div>
+        <h2>Oran &amp; Orantı Problemleri</h2>
+        <p class="desc">Bütün "sayı problemleri ailesinin" temel taşı. Diğer birçok problem tipi (işçi, karışım, hareket) aslında gizlenmiş bir orantı problemidir.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"…oranı", "…nın kaç katı", "…ile doğru/ters orantılı"</li>
+            <li>İki veya daha fazla miktar birbirine göre karşılaştırılıyor</li>
+            <li>Bir miktar sabit tutulup diğerleri paylaştırılıyor</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+a : b = x : k  →  a = xk, b = ... <br>
+Doğru orantı: a↑ ⇒ b↑  (a/b = sabit)<br>
+Ters orantı: a↑ ⇒ b↓  (a·b = sabit)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Karşılaştırılan miktarları listele</h4><p>Kaç tane değişken var, hepsini yaz.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Doğru mu ters mi orantılı, karar ver</h4><p>"Biri artınca öteki de artar mı (doğru), azalır mı (ters)?" diye kendine sor.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Ortak katsayı (k) yerleştir</h4><p>Oranı verilen tüm miktarları TEK bir k ile ifade et (örn. 2k, 3k, 5k). Bu, en çok zaman kazandıran hamledir.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Verilen tek somut bilgiyi kullanıp k'yı bul</h4><p>Sonra istenen ifadeyi k cinsinden hesapla.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir sınıftaki kız/erkek öğrenci oranı 3:5'tir. Toplam 32 öğrenci olduğuna göre kız öğrenci sayısı kaçtır?</p>
+        <p class="ans">Kız = 3k, Erkek = 5k → 3k+5k = 32 → k = 4 → Kız = <b>12</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Oranı doğrudan yüzde ya da fark gibi kullanmak. 3:5 oranı, "3 kişi fazla" demek değildir — toplamın 3/8'i demektir. Oranı her zaman k ile parçalara ayırarak düşün.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="0"></div>
+    </section>
+
+    <!-- 02 SAYI -->
+    <section id="sayi" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">02</div>
+        <h2>Sayı Problemleri</h2>
+        <p class="desc">Bu kategori aslında bir "çeviri" egzersizidir: Türkçe cümleyi cebirsel ifadeye dönüştürebiliyorsan, problemin yarısı bitmiştir.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"Bir sayının 2 katının 3 eksiği", "ardışık iki sayı"</li>
+            <li>Somut bir nesne yok — doğrudan sayılar hakkında konuşuluyor</li>
+            <li>Rakamlar, basamak değerleri geçebilir</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Çeviri Tablosu</h4>
+          <div class="formula-block">
+"x'in 2 katının 3 fazlası" → 2x + 3<br>
+"x'in 3 eksiğinin yarısı" → (x−3)/2<br>
+"ardışık 3 sayı" → x, x+1, x+2
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Cümleyi noktalayarak parçala</h4><p>Uzun cümleyi virgüllerden/ "ve" bağlaçlarından böl, her parçayı ayrı ayrı cebire çevir.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>İçten dışa doğru yaz</h4><p>"X'in 3 eksiğinin 2 katı" gibi iç içe ifadelerde, en içteki işlemden başla: önce (x−3), sonra ×2.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Denklemi kur ve çöz</h4><p>Cümledeki "-dır / eşittir" kelimesi, denklemdeki "=" işaretidir.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir sayının 4 katının 5 fazlası, aynı sayının 2 katının 15 fazlasına eşittir. Bu sayı kaçtır?</p>
+        <p class="ans">4x + 5 = 2x + 15 → 2x = 10 → x = <b>5</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>"Fazlası" ile "katı"nın işlem sırasını karıştırmak. "X'in 3 fazlasının 2 katı" ile "X'in 2 katının 3 fazlası" tamamen farklı ifadelerdir — parantezi doğru yere koy.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="1"></div>
+    </section>
+
+    <!-- 03 KESİR -->
+    <section id="kesir" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">03</div>
+        <h2>Kesir Problemleri</h2>
+        <p class="desc">Sayı problemlerinin kesirli hâli. Tek fark, "kaç fazla/eksik" yerine "kaçta kaçı" ile uğraşman.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"…nin 2/5'i", "…sinin yarısının 3 fazlası"</li>
+            <li>Bir bütünün parçalarından bahsediliyor</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+"K'nin a/b'si" → K · (a/b)<br>
+Bütün her zaman = 1 (ya da toplam adet)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Bütünü x (veya bilinen sayıyı) kabul et</h4><p>Bilinmiyorsa x de, bilinen bir toplam varsa onu kullan.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Kesirleri sırayla uygula</h4><p>"Yarısının 2 fazlasının 1/3'ü" gibi ifadelerde işlemleri içten dışa, adım adım yürüt — hepsini tek satırda çözmeye çalışma.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Kalan/fark ifadelerine dikkat et</h4><p>"Kalanının" dendiğinde bütünden çıkan payı (1 − a/b) ile çarpman gerekir.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir sayının 3/4'ünün 2 eksiği 10'dur. Bu sayı kaçtır?</p>
+        <p class="ans">(3/4)x − 2 = 10 → (3/4)x = 12 → x = <b>16</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>"Kalanı" ile "kendisi"ni karıştırmak. Bir işin 2/5'i bitmişse, kalan 3/5'tir — 2/5 değil. Bu tuzak TYT'de en sık puan kaybettiren noktalardan biridir.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="2"></div>
+    </section>
+
+    <!-- 04 YAŞ -->
+    <section id="yas" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">04</div>
+        <h2>Yaş Problemleri</h2>
+        <p class="desc">Zaman ilerledikçe İKİ kişinin yaşı da AYNI miktarda artar — bu problemi çözen tek gerçek budur.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"…yıl sonra/önce", "baba-oğul", "yaşları toplamı/farkı"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Altın Kural</h4>
+          <div class="formula-block">
+Yaş farkı ASLA değişmez (geçmiş, gelecek fark etmez)<br>
+n yıl sonra: herkesin yaşına +n<br>
+n yıl önce: herkesin yaşından −n
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Bir tablo çiz</h4><p>Satırlar: kişiler. Sütunlar: "şimdi", "n yıl önce", "n yıl sonra". Her hücreyi doldur.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Şimdiki yaşları x, y ile adlandır</h4><p>Geçmiş/gelecek yaşları bunlardan türet, yeni değişken açma.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Yaş farkının sabitliğini kontrol maddesi olarak kullan</h4><p>Kurduğun denklemlerde fark her zaman aynı çıkmalı — çıkmıyorsa hata var demektir.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir baba ile oğlunun yaşları toplamı 50'dir. 5 yıl önce baba, oğlunun 4 katı yaşındaydı. Oğlun bugünkü yaşı kaçtır?</p>
+        <p class="ans">Baba: b, Oğul: o → b+o=50 ve (b−5)=4(o−5) → b=4o−15 → 4o−15+o=50 → o=13, b=<b>37</b> (oğul 13)</p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Sadece bir kişinin yaşına n eklemek, diğerine eklemeyi unutmak. Zaman herkes için aynı anda ilerler — biri yaşlanırken öteki duramaz.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="3"></div>
+    </section>
+
+    <!-- 05 İŞÇİ -->
+    <section id="isci" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">05</div>
+        <h2>İşçi Problemleri</h2>
+        <p class="desc">Aslında gizlenmiş bir ters orantı problemidir: işçi sayısı arttıkça süre azalır. Anahtar fikir "1 birim işi" hesaba katmak.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"…günde biter", "musluk havuzu doldurur", "birlikte çalışırlarsa"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+1 işçi 1 günde yaptığı iş = 1/a  (a: o işçinin tek başına bitirme süresi)<br>
+Birlikte çalışma: 1/a + 1/b = 1/t<br>
+n işçi·x gün = m işçi·y gün (ters orantı)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Tüm işi "1 tam iş" kabul et</h4><p>Somut miktar (kaç halı, kaç m² vs.) yerine soyut "1 iş" ile düşünmek işlemleri basitleştirir.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Her işçi/musluk için "günlük/saatlik hız"ı yaz</h4><p>a günde bitiyorsa günlük hız = 1/a'dır.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Hızları topla (birlikte çalışıyorlarsa)</h4><p>Birlikte çalışan işçilerin/musluğun hızları toplanır, süreleri değil.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Ara verme / geç başlama varsa, o kişinin payını ayrı hesapla</h4><p>Örn: biri 2 saat geç başladıysa, o süredeki işi diğerleri tek başına yapmış demektir.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir işi Ali tek başına 12 günde, Veli tek başına 6 günde bitiriyor. İkisi birlikte kaç günde bitirir?</p>
+        <p class="ans">1/12 + 1/6 = 1/12+2/12 = 3/12 = 1/4 → toplam süre = <b>4 gün</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Süreleri doğrudan toplamak/ortalamasını almak ("12 ve 6'nın ortası 9 gün" gibi). Süreler değil, hızlar (1/süre) toplanır.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="4"></div>
+    </section>
+
+    <!-- 06 YÜZDE -->
+    <section id="yuzde" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">06</div>
+        <h2>Yüzde Problemleri</h2>
+        <p class="desc">Kesir problemlerinin 100 tabanlı hâli. "%x", her zaman x/100 demektir — başka bir şey değil.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"%", "yüzde kaçı", "yüzde kaç artış/azalış"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+A'nın %x'i = A · x/100<br>
+%x artış → yeni değer = A·(1 + x/100)<br>
+%x azalış → yeni değer = A·(1 − x/100)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Neyin "bütün" (100) olduğunu belirle</h4><p>Yüzde her zaman BİR şeyin yüzdesidir — hangi miktara göre alındığını karıştırma (ilk fiyat mı, yeni fiyat mı?).</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Ardışık yüzdeleri asla toplama</h4><p>%20 artıp %20 azalan bir değer başa dönmez! Her adımı ayrı ayrı, bir öncekinin sonucu üzerinden hesapla.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>"Yüzde kaç artmıştır" sorusunda farkı ilk değere böl</h4><p>Artış oranı = (yeni−eski)/eski, yeni'ye değil eskiye böl.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Bir ürünün fiyatı önce %20 artırılıyor, sonra %20 azaltılıyor. Son fiyat ilk fiyattan yüzde kaç farklıdır?</p>
+        <p class="ans">100 → 100·1,2=120 → 120·0,8=96 → %4 <b>azalmıştır</b> (başa dönmez!)</p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Ardışık yüzde değişimlerini toplayıp/çıkarıp "%20 − %20 = %0, değişim yok" sanmak. Yüzdeler her zaman güncel değer üzerinden hesaplanır, ilk değer üzerinden değil.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="5"></div>
+    </section>
+
+    <!-- 07 KAR-ZARAR -->
+    <section id="kar-zarar" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">07</div>
+        <h2>Kâr–Zarar Problemleri</h2>
+        <p class="desc">Yüzde problemlerinin ticari versiyonu. Tek görevin: alış fiyatını (A) ve satış fiyatını (S) doğru eşleştirmek.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"alış fiyatı", "satış fiyatı", "kâr/zarar etti"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+S &gt; A ise Kâr = S − A<br>
+S &lt; A ise Zarar = A − S<br>
+%Kâr = (Kâr / A) · 100   (HER ZAMAN alış fiyatına göre!)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>A ve S'yi cümleden ayıkla</h4><p>"Aldı" geçen fiyat A'dır, "sattı" geçen fiyat S'dir — karıştırma.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Kâr mı zarar mı, işaretle belirle</h4><p>S&gt;A ise kâr, S&lt;A ise zarar. Yüzdeyi bulmadan önce bu yönü netleştir.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Yüzdeyi mutlaka A (alış) üzerinden hesapla</h4><p>Kâr yüzdesi asla satış fiyatına göre hesaplanmaz — bu en klasik tuzaktır.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>40 liraya alınan bir mal 48 liraya satılırsa yüzde kaç kâr edilir?</p>
+        <p class="ans">Kâr = 48−40 = 8 → %Kâr = 8/40 · 100 = <b>%20</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Kâr yüzdesini satış fiyatına (S) bölmek. Doğrusu her zaman alış fiyatına (A) bölmektir — "kâr neye göre kâr sayılır?" sorusunun cevabı, harcanan paradır.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="6"></div>
+    </section>
+
+    <!-- 08 KARIŞIM -->
+    <section id="karisim" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">08</div>
+        <h2>Karışım Problemleri</h2>
+        <p class="desc">İki veya daha fazla maddenin bir araya gelmesiyle oluşan yeni "bütün"ün içindeki payları sorar.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"tuz-su", "şeker-un", "…karıştırılıyor", "saf madde oranı"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+Madde oranı = (o maddenin miktarı) / (toplam karışım miktarı)<br>
+Yüzdesi = oran · 100
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Her maddenin miktarını ayrı ayrı yaz</h4><p>a gram A maddesi, b gram B maddesi gibi.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Toplamı (payda) hesapla</h4><p>Toplam karışım = tüm maddelerin miktarları toplamı — sadece sorulan maddeyi değil, hepsini topla.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>İstenen maddenin oranını bul, sonra 100 ile çarp</h4><p>Karışıma yeni madde eklenir/çıkarılırsa toplamı güncellemeyi unutma.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>35 kg su ile 15 kg tuz karıştırılıyor. Karışımdaki tuz yüzdesi kaçtır?</p>
+        <p class="ans">Toplam = 35+15 = 50 → Tuz oranı = 15/50 = 0,30 → <b>%30</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Yüzdeyi, toplam yerine sadece diğer maddenin miktarına göre almak (15/35 gibi). Payda HER ZAMAN karışımın TAMAMI olmalı.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="7"></div>
+    </section>
+
+    <!-- 09 HAREKET -->
+    <section id="hareket" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">09</div>
+        <h2>Hareket Problemleri</h2>
+        <p class="desc">Tek formül: Yol = Hız × Zaman. Zorluk formülde değil, kimin hangi yolu/zamanı kullandığını doğru eşleştirmektedir.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>"araç", "hız", "…saat sonra buluşurlar", "birbirine göre yaklaşma/uzaklaşma"</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Temel Mantık</h4>
+          <div class="formula-block">
+Yol = Hız · Zaman   (x = v·t)<br>
+Aynı yönde takip: fark hızı = v1 − v2<br>
+Karşı yönden yaklaşma: toplam hız = v1 + v2
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Bir çizgi/şema çiz</h4><p>Başlangıç noktalarını, yönleri ve varsa buluşma noktasını görselleştir — kafanda çözmeye çalışma.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Aynı yön mü, zıt yön mü belirle</h4><p>Zıt yönden geliyorlarsa hızlar toplanır (aradaki mesafe hızla kapanır); aynı yönde biri diğerini kovalıyorsa hızlar farkı alınır.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Ortak değişkeni (genelde zaman) eşitle</h4><p>İki hareketli aynı anda yola çıkıyorsa zamanları t olarak ortak tut, iki ayrı yol denklemi kur.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Birimleri kontrol et</h4><p>km/sa ile dakikayı karıştırma; hesaba geçmeden tüm birimleri aynı sisteme çevir.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>240 km uzaklıktaki iki şehirden aynı anda karşılıklı yola çıkan iki araç, sırasıyla 60 km/sa ve 80 km/sa hızla gidiyor. Kaç saat sonra karşılaşırlar?</p>
+        <p class="ans">Toplam hız = 60+80 = 140 → t = 240/140 = <b>12/7 saat</b></p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Karşı yönden gelen iki aracın hızlarını toplaması gerekirken çıkarmak (ya da tam tersi, kovalamacada toplamak). Önce yön ilişkisine karar ver, sonra formülü seç.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="8"></div>
+    </section>
+
+    <!-- 10 GRAFİK -->
+    <section id="grafik" class="topic">
+      <div class="topic-head">
+        <div class="eyebrow">10</div>
+        <h2>Grafik Problemleri</h2>
+        <p class="desc">Burada denklem kurmaktan çok, doğru OKUMA becerisi test edilir. Grafik, üstündeki bilgiyi sana zaten vermiştir — senin işin onu doğru sözlere çevirmek.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="box cues">
+          <h4>Nasıl Tanırsın?</h4>
+          <ul>
+            <li>Sütun, çizgi, daire (pasta) grafiği verilmiş</li>
+            <li>"Grafiğe göre", "…yılında", eksen etiketleri var</li>
+          </ul>
+        </div>
+        <div class="box formula">
+          <h4>Grafik Tipi → Ne Anlatır</h4>
+          <div class="formula-block">
+Çizgi grafik  → zamana göre DEĞİŞİM / eğim = hız
+Sütun grafik  → kategoriler arası KARŞILAŞTIRMA
+Daire grafik  → bütünün PAYLARI (toplam = 360° ya da %100)
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="s"><div class="idx"></div><div><h4>Önce eksenleri/etiketleri oku</h4><p>Hangi eksen ne temsil ediyor, birimi ne? Sayılara bakmadan önce bunu anlamadan hiçbir yorum yapma.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Daire grafikte 360°'yi veya %100'ü sabit kabul et</h4><p>Bir dilimin derecesi/yüzdesi, bütünün payını verir — bunu doğrudan orantı problemine çevirebilirsin.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Çizgi grafikte eğimi "hız" gibi düşün</h4><p>Eğim ne kadar dikse, değişim o kadar hızlıdır; yatay kısım = değişim yok.</p></div></div>
+        <div class="s"><div class="idx"></div><div><h4>Grafikler arası veri taşımaya dikkat et</h4><p>Çok parçalı sorularda bir grafikteki sonucu diğerine taşımak gerekebilir — soruyu bölerek ilerle.</p></div></div>
+      </div>
+
+      <div class="example">
+        <h4>Örnek</h4>
+        <p>Daire grafikte bir dilimin merkez açısı 60°. Bu dilim, bütünün yüzde kaçını oluşturur?</p>
+        <p class="ans">60/360 = 1/6 → <b>%16,7</b> (yaklaşık)</p>
+      </div>
+
+      <div class="mistake">
+        <div class="ic">⚠️</div>
+        <div><h4>Sık Yapılan Hata</h4><p>Grafikteki görsel büyüklüğe bakarak tahmin yürütmek, gerçek sayısal değerleri okumadan yorum yapmak. Grafik yorumlarken her zaman eksen değerlerine ve verilen sayılara sadık kal.</p></div>
+      </div>
+    
+      <div class="practice-mount" data-topic="9"></div>
+    </section>
+
+    <footer>
+      Bu rehber, TYT sözel problem kalıplarını tanıma ve çözüm iskeletini kurma pratiği içindir. Her kalıbı öğrendikten sonra en az 5-6 farklı soruda uygulayarak pekiştirmen önerilir — kalıcılık, tekrarla gelir.
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // scroll spy
+  const links = document.querySelectorAll('.nav-link');
+  const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href')));
+
+  function onScroll(){
+    let idx = 0;
+    const y = window.scrollY + 120;
+    sections.forEach((sec,i) => { if (sec && sec.offsetTop <= y) idx = i; });
+    links.forEach(l => l.classList.remove('active'));
+    if(links[idx]) links[idx].classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // reveal on scroll
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); } });
+  }, {threshold:0.08});
+  document.querySelectorAll('.topic').forEach(el=>obs.observe(el));
+</script>
+
+<script>
+/* =========================================================
+   PRATİK MOTORU — sonsuz, zihinden çözülebilir tam sayılı sorular
+   30 art arda doğru => bir sonraki tip açılır
+   ========================================================= */
+
+const GOAL = 30;
+
+const TOPIC_META = [
+  {key:'oran-oranti', name:'Oran & Orantı'},
+  {key:'sayi',        name:'Sayı Problemleri'},
+  {key:'kesir',       name:'Kesir Problemleri'},
+  {key:'yas',         name:'Yaş Problemleri'},
+  {key:'isci',        name:'İşçi Problemleri'},
+  {key:'yuzde',       name:'Yüzde Problemleri'},
+  {key:'kar-zarar',   name:'Kâr–Zarar Problemleri'},
+  {key:'karisim',     name:'Karışım Problemleri'},
+  {key:'hareket',     name:'Hareket Problemleri'},
+  {key:'grafik',      name:'Grafik Problemleri'},
+];
+
+function ri(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(arr){ return arr[ri(0,arr.length-1)]; }
+function gcd(a,b){ return b===0 ? a : gcd(b,a%b); }
+function divisors(n){
+  const out=[];
+  for(let d=1; d<=n; d++){ if(n%d===0) out.push(d); }
+  return out;
+}
+
+/* ---------- GENERATORS: her biri {text, answer} döndürür ---------- */
+
+const GENERATORS = [
+
+  /* 0 — ORAN & ORANTI */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      let a=ri(1,9), b=ri(1,9);
+      while(gcd(a,b)!==1){ a=ri(1,9); b=ri(1,9); }
+      const k=ri(2,9);
+      const toplam=(a+b)*k;
+      const askBig = Math.random()<0.5;
+      const ans = askBig ? Math.max(a,b)*k : Math.min(a,b)*k;
+      return {
+        text:`İki sayının oranı ${a}:${b}'dir. Bu iki sayının toplamı <b>${toplam}</b> olduğuna göre, ${askBig?'büyük':'küçük'} sayı kaçtır?`,
+        answer: ans
+      };
+    } else if(t===1){
+      let a=ri(1,5), b=ri(1,5), c=ri(1,5);
+      const k=ri(2,8);
+      const toplam=(a+b+c)*k;
+      const which = pick(['birinci','ikinci','üçüncü']);
+      const val = which==='birinci'?a*k:(which==='ikinci'?b*k:c*k);
+      return {
+        text:`Üç sayının oranı ${a}:${b}:${c}'dir. Bu sayıların toplamı <b>${toplam}</b> olduğuna göre, ${which} sayı kaçtır?`,
+        answer: val
+      };
+    } else {
+      let a=ri(2,12), c=ri(2,6);
+      let b;
+      do{ b=ri(2,12); } while((a*b)%c!==0);
+      const ans = (a*b)/c;
+      return {
+        text:`${a} işçi bir işi ${b} günde bitirebiliyor. Aynı kapasitede ${c} işçi bu işi kaç günde bitirir?`,
+        answer: ans
+      };
+    }
+  },
+
+  /* 1 — SAYI PROBLEMLERİ */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      const x=ri(2,60), m=ri(2,9), p=ri(1,20);
+      const q=m*x+p;
+      return {
+        text:`Bir sayının ${m} katının ${p} fazlası <b>${q}</b>'dir. Bu sayı kaçtır?`,
+        answer:x
+      };
+    } else if(t===1){
+      const n = pick([3,4,5]);
+      const s = ri(1,30);
+      const toplam = n*s + n*(n-1)/2;
+      return {
+        text:`Ardışık ${n} tam sayının toplamı <b>${toplam}</b>'dir. Bu sayılardan en küçüğü kaçtır?`,
+        answer:s
+      };
+    } else {
+      const small = ri(1,50);
+      const fark = ri(1,30);
+      const big = small+fark;
+      const toplam = big+small;
+      const askBig = Math.random()<0.5;
+      return {
+        text:`İki sayının toplamı <b>${toplam}</b>, farkı <b>${fark}</b>'tır. ${askBig?'Büyük':'Küçük'} sayı kaçtır?`,
+        answer: askBig?big:small
+      };
+    }
+  },
+
+  /* 2 — KESİR PROBLEMLERİ */
+  function(){
+    const t = ri(0,1);
+    if(t===0){
+      const b=ri(2,9);
+      const k=ri(2,15);
+      const x=b*k;
+      let a=ri(1,b-1);
+      const c=ri(1,20);
+      const d=a*k+c;
+      return {
+        text:`Bir sayının ${a}/${b}'sinin ${c} fazlası <b>${d}</b>'dir. Bu sayı kaçtır?`,
+        answer:x
+      };
+    } else {
+      const denom = pick([2,3,4,5]);
+      const k=ri(2,15);
+      const x=denom*k;
+      const c=ri(1,20);
+      const d=k-c<0 ? k+c : k-c;
+      const isEksik = Math.random()<0.5;
+      const dVal = isEksik ? (k-c) : (k+c);
+      return {
+        text:`Bir sayının 1/${denom}'inin ${c} ${isEksik?'eksiği':'fazlası'} <b>${dVal}</b>'dir. Bu sayı kaçtır?`,
+        answer:x
+      };
+    }
+  },
+
+  /* 3 — YAŞ PROBLEMLERİ */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      const v=ri(3,20), k=ri(2,5);
+      const toplam=v*(k+1);
+      return {
+        text:`Ali'nin yaşı Veli'nin yaşının ${k} katıdır. İkisinin yaşları toplamı <b>${toplam}</b> olduğuna göre, Veli kaç yaşındadır?`,
+        answer:v
+      };
+    } else if(t===1){
+      const f=ri(5,40), fark=ri(2,20);
+      const toplam=2*f+fark;
+      return {
+        text:`Ayşe, Fatma'dan ${fark} yaş büyüktür. İkisinin yaşları toplamı <b>${toplam}</b> olduğuna göre, Fatma kaç yaşındadır?`,
+        answer:f
+      };
+    } else {
+      const o=ri(5,40), fark=ri(2,30);
+      const baba=o+fark;
+      const askBaba = Math.random()<0.5;
+      return {
+        text: askBaba
+          ? `Bir baba ile oğlunun yaş farkı ${fark}'tır. Oğul <b>${o}</b> yaşında olduğuna göre, baba kaç yaşındadır?`
+          : `Bir baba ile oğlunun yaş farkı ${fark}'tır. Baba <b>${baba}</b> yaşında olduğuna göre, oğul kaç yaşındadır?`,
+        answer: askBaba ? baba : o
+      };
+    }
+  },
+
+  /* 4 — İŞÇİ PROBLEMLERİ */
+  function(){
+    const t = ri(0,1);
+    if(t===0){
+      const tt=ri(2,10);
+      const t2=tt*tt;
+      const divs=divisors(t2);
+      const delta=pick(divs);
+      const a=tt+delta;
+      const b=(a*tt)/delta;
+      const isim1=pick(['Ali','Ahmet','Can','Emre']);
+      let isim2=pick(['Veli','Burak','Deniz','Kemal']);
+      return {
+        text:`Bir işi ${isim1} tek başına ${a} günde, ${isim2} tek başına ${b} günde bitirebiliyor. İkisi birlikte çalışırsa bu işi kaç günde bitirirler?`,
+        answer: tt
+      };
+    } else {
+      const tt=ri(2,12);
+      const c=ri(2,10);
+      const totalUnits=tt*c;
+      const divs=divisors(totalUnits).filter(d=>d>=2 && d<=30);
+      const a=pick(divs.length?divs:[c]);
+      const b=totalUnits/a;
+      return {
+        text:`${a} işçi bir işi ${b} günde bitirebiliyor. Aynı kapasitede ${c} işçi bu işi kaç günde bitirir?`,
+        answer: tt
+      };
+    }
+  },
+
+  /* 5 — YÜZDE PROBLEMLERİ */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      const p=5*ri(1,19);
+      const x=20*ri(1,10);
+      const y=(x*p)/100;
+      return {
+        text:`Bir sayının %${p}'i <b>${y}</b>'dir. Bu sayı kaçtır?`,
+        answer:x
+      };
+    } else if(t===1){
+      const p=5*ri(1,19);
+      const x=20*ri(1,10);
+      const y=x + (x*p)/100;
+      const artis = Math.random()<0.5;
+      const yVal = artis ? (x+(x*p)/100) : (x-(x*p)/100);
+      return {
+        text:`Bir sayı %${p} ${artis?'artırılınca':'azaltılınca'} <b>${yVal}</b> oluyor. Bu sayının ilk değeri kaçtır?`,
+        answer:x
+      };
+    } else {
+      const p1=10*ri(1,5);
+      const p2=10*ri(1,5);
+      const final = (100+p1)*(100-p2)/100;
+      return {
+        text:`Bir ürünün fiyatı önce %${p1} artırılıyor, sonra %${p2} azaltılıyor. Son fiyat, 100 birimlik ilk fiyata göre kaç birim olur?`,
+        answer: final
+      };
+    }
+  },
+
+  /* 6 — KAR-ZARAR PROBLEMLERİ */
+  function(){
+    const t = ri(0,1);
+    if(t===0){
+      const a=20*ri(1,10);
+      const p=5*ri(1,10);
+      const isKar = Math.random()<0.5;
+      const b = isKar ? a+(a*p)/100 : a-(a*p)/100;
+      return {
+        text:`${a} liraya alınan bir mal ${b} liraya satılıyor. Yüzde kaç ${isKar?'kâr':'zarar'} edilmiştir?`,
+        answer:p
+      };
+    } else {
+      const a=20*ri(1,10);
+      const p=5*ri(1,10);
+      const isKar = Math.random()<0.5;
+      const b = isKar ? a+(a*p)/100 : a-(a*p)/100;
+      return {
+        text:`${a} liraya alınan bir mal, %${p} ${isKar?'kârla':'zararla'} satılıyor. Satış fiyatı kaç liradır?`,
+        answer:b
+      };
+    }
+  },
+
+  /* 7 — KARIŞIM PROBLEMLERİ */
+  function(){
+    const t = ri(0,1);
+    if(t===0){
+      const T=20*ri(1,10);
+      const p=5*ri(1,19);
+      const tuz=(T*p)/100;
+      const su=T-tuz;
+      return {
+        text:`${tuz} kg tuz ile ${su} kg su karıştırılıyor. Elde edilen karışımdaki tuzun yüzdesi kaçtır?`,
+        answer:p
+      };
+    } else {
+      const T=20*ri(1,10);
+      const p=5*ri(1,19);
+      const tuz=(T*p)/100;
+      return {
+        text:`${T} kg karışımın %${p}'si tuzdur. Bu karışımda kaç kg tuz vardır?`,
+        answer:tuz
+      };
+    }
+  },
+
+  /* 8 — HAREKET PROBLEMLERİ */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      const v1=5*ri(4,20), v2=5*ri(4,20);
+      const tt=ri(1,10);
+      const d=(v1+v2)*tt;
+      return {
+        text:`İki şehir arası uzaklık ${d} km'dir. Bu iki şehirden aynı anda birbirine doğru yola çıkan iki aracın hızları ${v1} km/sa ve ${v2} km/sa'dir. Kaç saat sonra karşılaşırlar?`,
+        answer:tt
+      };
+    } else if(t===1){
+      let v1=5*ri(6,20), v2=5*ri(4,19);
+      if(v2>=v1){ [v1,v2]=[v2+5,v2]; }
+      const tt=ri(1,10);
+      const d=(v1-v2)*tt;
+      return {
+        text:`Aynı yönde hareket eden iki araçtan öndekinin hızı ${v2} km/sa, arkadakinin hızı ${v1} km/sa'dir. Aralarında ${d} km fark olduğuna göre, arkadaki araç öndekine kaç saatte yetişir?`,
+        answer:tt
+      };
+    } else {
+      const v=5*ri(4,20);
+      const tt=ri(1,10);
+      const d=v*tt;
+      const askD = Math.random()<0.5;
+      return {
+        text: askD
+          ? `Sabit ${v} km/sa hızla giden bir araç ${tt} saatte kaç km yol alır?`
+          : `Sabit ${v} km/sa hızla giden bir araç, ${d} km yolu kaç saatte alır?`,
+        answer: askD ? d : tt
+      };
+    }
+  },
+
+  /* 9 — GRAFİK PROBLEMLERİ */
+  function(){
+    const t = ri(0,2);
+    if(t===0){
+      const k=ri(1,19);
+      const derece=18*k, percent=5*k;
+      const askPercent = Math.random()<0.5;
+      return {
+        text: askPercent
+          ? `Bir daire (pasta) grafikte bir dilimin merkez açısı ${derece}°'dir. Bu dilim, bütünün yüzde kaçını oluşturur?`
+          : `Bir daire (pasta) grafikte bir dilim, bütünün %${percent}'ini oluşturuyor. Bu dilimin merkez açısı kaç derecedir?`,
+        answer: askPercent ? percent : derece
+      };
+    } else if(t===1){
+      const T=20*ri(1,10);
+      const p=5*ri(1,19);
+      const value=(T*p)/100;
+      return {
+        text:`Bir sütun grafikte, toplam ${T} kişiden %${p}'i "Spor" kategorisine ait olarak gösterilmiştir. "Spor" kategorisindeki kişi sayısı kaçtır?`,
+        answer:value
+      };
+    } else {
+      const T=20*ri(1,10);
+      const p=5*ri(1,19);
+      const value=(T*p)/100;
+      return {
+        text:`Bir sütun grafikte toplam ${T} kişiden, "Müzik" kategorisinde ${value} kişi olduğu görülüyor. "Müzik" kategorisi toplamın yüzde kaçıdır?`,
+        answer:p
+      };
+    }
+  },
+];
+
+/* ---------- STATE ---------- */
+const state = {
+  streak: new Array(10).fill(0),
+  unlocked: new Array(10).fill(false),
+  mastered: new Array(10).fill(false),
+  current: new Array(10).fill(null),
+};
+state.unlocked[0] = true;
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 3200);
+}
+
+function buildPracticeUI(i){
+  const mount = document.querySelector(`.practice-mount[data-topic="${i}"]`);
+  if(!mount) return;
+  mount.innerHTML = `
+    <div class="practice" id="practice-${i}">
+      <h4 class="p-title">Pratik — ${TOPIC_META[i].name}</h4>
+      <div class="p-inner">
+        <div class="p-question" id="pq-${i}"></div>
+        <div class="scratch">
+          <div class="scratch-label">Çözüm Alanı</div>
+          <div class="scratch-toolbar">
+            <button class="swatch" data-color="blue" style="--c:var(--blue)" title="Mavi kalem"></button>
+            <button class="swatch" data-color="rust" style="--c:var(--rust)" title="Kırmızı kalem"></button>
+            <button class="swatch" data-color="green" style="--c:var(--green)" title="Yeşil kalem"></button>
+            <div class="sep"></div>
+            <button class="tool-btn eraser-btn" title="Silgi">🧹 Silgi</button>
+            <button class="tool-btn clear-btn" title="Tümünü temizle">Temizle</button>
+          </div>
+          <canvas class="scratch-canvas" id="canvas-${i}"></canvas>
+        </div>
+        <div class="p-row">
+          <input type="number" inputmode="numeric" id="pin-${i}" placeholder="cevap">
+          <button id="pbtn-${i}">Kontrol Et</button>
+          <button class="skip" id="pskip-${i}" type="button">Soruyu Değiştir</button>
+        </div>
+        <div class="p-feedback" id="pfb-${i}"></div>
+        <div class="p-progress-wrap">
+          <span class="p-streak-label" id="pstreak-${i}"></span>
+          <div class="p-bar"><div class="p-bar-fill" id="pbar-${i}"></div></div>
+        </div>
+      </div>
+      <div class="lock-overlay" id="plock-${i}" style="display:none;">
+        <div class="ic">🔒</div>
+        <div class="msg"><b>${TOPIC_META[i].name}</b> pratiğini açmak için önce
+        <b>${i>0?TOPIC_META[i-1].name:''}</b> bölümünde ${GOAL} soruyu art arda doğru yapmalısın.</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById(`pbtn-${i}`).addEventListener('click', ()=>checkAnswer(i));
+  document.getElementById(`pin-${i}`).addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkAnswer(i); });
+  document.getElementById(`pskip-${i}`).addEventListener('click', ()=>{ newProblem(i); });
+
+  try{ setupScratchPad(i); } catch(err){ console.warn('scratch pad init failed for topic', i, err); }
+  newProblem(i);
+  refreshLockUI(i);
+}
+
+const SCRATCH = {};
+
+function setupScratchPad(i){
+  const canvas = document.getElementById(`canvas-${i}`);
+  const wrap = canvas.closest('.scratch');
+  const ctx = canvas.getContext('2d');
+  let drawing = false, last = null;
+  let toolMode = 'pen';
+  let colorName = 'blue';
+
+  function colorHex(name){
+    const varName = {blue:'--blue', rust:'--rust', green:'--green'}[name];
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function sizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, rect.width * ratio);
+    canvas.height = Math.max(1, rect.height * ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  sizeCanvas();
+
+  function localPos(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    drawing = true;
+    last = localPos(e);
+    canvas.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  canvas.addEventListener('pointermove', (e)=>{
+    if(!drawing) return;
+    const p = localPos(e);
+    ctx.beginPath();
+    if(toolMode === 'eraser'){
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 20;
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = colorHex(colorName);
+      ctx.lineWidth = 2.6;
+    }
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+    e.preventDefault();
+  });
+  function stop(){ drawing = false; last = null; }
+  canvas.addEventListener('pointerup', stop);
+  canvas.addEventListener('pointerleave', stop);
+  canvas.addEventListener('pointercancel', stop);
+
+  const swatches = wrap.querySelectorAll('.swatch');
+  const eraserBtn = wrap.querySelector('.eraser-btn');
+  const clearBtn = wrap.querySelector('.clear-btn');
+
+  function setActivePen(name){
+    toolMode = 'pen';
+    colorName = name;
+    swatches.forEach(s=> s.classList.toggle('active', s.dataset.color===name));
+    eraserBtn.classList.remove('active');
+  }
+  swatches.forEach(s=>{
+    s.addEventListener('click', ()=> setActivePen(s.dataset.color));
+  });
+  eraserBtn.addEventListener('click', ()=>{
+    toolMode = 'eraser';
+    swatches.forEach(s=> s.classList.remove('active'));
+    eraserBtn.classList.add('active');
+  });
+  clearBtn.addEventListener('click', ()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  });
+
+  setActivePen('blue');
+
+  SCRATCH[i] = {
+    clear: ()=> ctx.clearRect(0,0,canvas.width,canvas.height)
+  };
+}
+
+function newProblem(i){
+  const gen = GENERATORS[i];
+  const problem = gen();
+  state.current[i] = problem.answer;
+  const qEl = document.getElementById(`pq-${i}`);
+  if(qEl) qEl.innerHTML = problem.text;
+  const inEl = document.getElementById(`pin-${i}`);
+  if(inEl){ inEl.value=''; inEl.focus({preventScroll:true}); }
+  const fb = document.getElementById(`pfb-${i}`);
+  if(fb){ fb.textContent=''; fb.className='p-feedback'; }
+  if(SCRATCH[i]) SCRATCH[i].clear();
+}
+
+function checkAnswer(i){
+  const inEl = document.getElementById(`pin-${i}`);
+  const fb = document.getElementById(`pfb-${i}`);
+  if(!inEl.value.trim()){ return; }
+  const val = parseFloat(inEl.value);
+  const correct = Math.abs(val - state.current[i]) < 1e-9;
+
+  if(correct){
+    state.streak[i] = Math.min(state.streak[i]+1, GOAL);
+    fb.textContent = '✓ Doğru!';
+    fb.className = 'p-feedback ok';
+    if(state.streak[i] >= GOAL && !state.mastered[i]){
+      state.mastered[i] = true;
+      document.getElementById(`practice-${i}`).classList.add('mastered');
+      if(i+1 < TOPIC_META.length && !state.unlocked[i+1]){
+        state.unlocked[i+1] = true;
+        toast(`🎉 "${TOPIC_META[i].name}" tamamlandı! "${TOPIC_META[i+1].name}" bölümü açıldı.`);
+        buildPracticeUI(i+1);
+      } else {
+        toast(`🎉 "${TOPIC_META[i].name}" bölümünü ustalaştın!`);
+      }
+    }
+  } else {
+    state.streak[i] = 0;
+    fb.textContent = `✗ Yanlış — doğru cevap: ${state.current[i]}`;
+    fb.className = 'p-feedback no';
+  }
+
+  updateStreakUI(i);
+  updateBadges();
+  updateOverview();
+  setTimeout(()=>newProblem(i), correct ? 650 : 1500);
+}
+
+function updateStreakUI(i){
+  const label = document.getElementById(`pstreak-${i}`);
+  const bar = document.getElementById(`pbar-${i}`);
+  if(!label||!bar) return;
+  label.textContent = `🔥 ${state.streak[i]} / ${GOAL} ardışık doğru`;
+  bar.style.width = `${Math.min(100,(state.streak[i]/GOAL)*100)}%`;
+}
+
+function refreshLockUI(i){
+  const box = document.getElementById(`practice-${i}`);
+  const lock = document.getElementById(`plock-${i}`);
+  const inner = box.querySelector('.p-inner');
+  if(state.unlocked[i]){
+    lock.style.display='none';
+    inner.style.filter='none'; inner.style.pointerEvents='auto';
+  } else {
+    lock.style.display='flex';
+    inner.style.filter='blur(4px)'; inner.style.pointerEvents='none';
+  }
+}
+
+function updateBadges(){
+  TOPIC_META.forEach((m,i)=>{
+    const b = document.querySelector(`.badge[data-badge="${i}"]`);
+    if(!b) return;
+    if(state.mastered[i]){ b.textContent='✓'; b.className='badge done'; }
+    else if(state.unlocked[i]){ b.textContent = state.streak[i]>0 ? `${state.streak[i]}/${GOAL}` : ''; b.className='badge active'; }
+    else { b.textContent='🔒'; b.className='badge lock'; }
+  });
+}
+
+function updateOverview(){
+  const count = state.mastered.filter(Boolean).length;
+  document.getElementById('overview-text').textContent = `${count} / ${TOPIC_META.length} tip ustalaşıldı`;
+  document.getElementById('overview-fill').style.width = `${(count/TOPIC_META.length)*100}%`;
+}
+
+/* ---------- INIT ---------- */
+TOPIC_META.forEach((m,i)=> buildPracticeUI(i));
+updateBadges();
+updateOverview();
+</script>
+
+<div id="toast"></div>
+
+</body>
+</html>
