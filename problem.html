@@ -431,6 +431,12 @@
 
   /* ---------- SCRATCH PAD (çözüm alanı) ---------- */
   .scratch{margin:6px 0 20px 0;}
+  .scratch,
+  .scratch *{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
+  }
   .scratch-label{
     font-size:11px; text-transform:uppercase; letter-spacing:.08em;
     color:var(--muted); font-weight:700; margin-bottom:7px;
@@ -467,6 +473,8 @@
     border-radius:10px;
     cursor:crosshair;
     touch-action:none;
+    -webkit-user-select:none;
+    user-select:none;
   }
 
   /* Lock overlay */
@@ -1515,6 +1523,7 @@ function setupScratchPad(i){
   }
 
   canvas.addEventListener('pointerdown', (e)=>{
+    if(window.getSelection) window.getSelection().removeAllRanges();
     drawing = true;
     last = localPos(e);
     canvas.setPointerCapture(e.pointerId);
@@ -1538,7 +1547,11 @@ function setupScratchPad(i){
     last = p;
     e.preventDefault();
   });
-  function stop(){ drawing = false; last = null; }
+  function stop(e){
+    drawing = false;
+    last = null;
+    if(e) e.preventDefault();
+  }
   canvas.addEventListener('pointerup', stop);
   canvas.addEventListener('pointerleave', stop);
   canvas.addEventListener('pointercancel', stop);
