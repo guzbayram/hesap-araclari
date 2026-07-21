@@ -55,9 +55,80 @@
     margin:0 auto;
     min-height:100vh;
   }
+  /* ---------- MOBILE TOPBAR + DRAWER NAV ---------- */
+  .menu-toggle{
+    display:none;
+    position:fixed; top:14px; left:14px; z-index:70;
+    width:44px; height:44px;
+    align-items:center; justify-content:center;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 4px 14px rgba(34,37,43,.12);
+    cursor:pointer;
+  }
+  .menu-toggle .bar{
+    display:block; width:20px; height:2px; background:var(--ink);
+    position:relative; transition:transform .2s ease, opacity .2s ease;
+  }
+  .menu-toggle .bar::before,.menu-toggle .bar::after{
+    content:""; position:absolute; left:0; width:20px; height:2px; background:var(--ink);
+    transition:transform .2s ease, top .2s ease;
+  }
+  .menu-toggle .bar::before{top:-6px;}
+  .menu-toggle .bar::after{top:6px;}
+  .shell.nav-open .menu-toggle .bar{background:transparent;}
+  .shell.nav-open .menu-toggle .bar::before{top:0; transform:rotate(45deg);}
+  .shell.nav-open .menu-toggle .bar::after{top:0; transform:rotate(-45deg);}
+
+  .sidebar-overlay{
+    display:none;
+    position:fixed; inset:0; background:rgba(20,18,12,.42);
+    z-index:55; opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+
+  .mobile-topbar-spacer{display:none;}
+
   @media (max-width:900px){
     .shell{grid-template-columns:1fr;}
-    .sidebar{position:relative; height:auto; top:0;}
+    .menu-toggle{display:flex;}
+    .mobile-topbar-spacer{display:block; height:64px;}
+
+    .sidebar{
+      position:fixed; top:0; left:0; height:100vh; width:min(82vw,300px);
+      transform:translateX(-100%);
+      transition:transform .28s ease;
+      z-index:60;
+      background:var(--paper);
+      box-shadow:0 0 0 rgba(0,0,0,0);
+      padding-top:74px;
+    }
+    .shell.nav-open .sidebar{
+      transform:translateX(0);
+      box-shadow:8px 0 30px rgba(0,0,0,.18);
+    }
+    .shell.nav-open .sidebar-overlay{
+      display:block; opacity:1; pointer-events:auto;
+    }
+    .shell.nav-open{overflow:hidden;}
+
+    nav li a{padding:10px 8px; font-size:15px;}
+    .swatch{width:28px; height:28px;}
+    .tool-btn{padding:8px 14px;}
+  }
+
+  @media (max-width:520px){
+    .hero h1{font-size:clamp(26px,7vw,34px); max-width:none;}
+    .hero p.lead{font-size:16px;}
+    .strategy{grid-template-columns:1fr 1fr; gap:10px;}
+    .strategy .step{padding:14px 12px;}
+    main{padding-left:18px; padding-right:18px;}
+    .p-row{gap:8px;}
+    .p-row input[type="number"]{width:100px; flex:1 1 100px;}
+    .p-row button{padding:11px 16px; flex:1 1 auto;}
+    .p-row button.skip{flex:1 1 auto;}
+    .scratch-canvas{height:130px;}
   }
 
   /* ---------- SIDEBAR ---------- */
@@ -112,7 +183,7 @@
 
   /* ---------- MAIN ---------- */
   main{padding:56px 48px 100px 48px;}
-  @media (max-width:900px){ main{padding:40px 22px 80px 22px;} }
+  @media (max-width:900px){ main{padding:78px 22px 80px 22px;} }
 
   .hero{
     max-width:760px;
@@ -441,9 +512,14 @@
 </head>
 <body>
 
-<div class="shell">
+<div class="shell" id="shell">
+  <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç/kapat" aria-expanded="false">
+    <span class="bar"></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="mark">π</div>
       <div class="brand-text">Problem Pusulası</div>
@@ -1579,6 +1655,33 @@ function updateOverview(){
   document.getElementById('overview-text').textContent = `${count} / ${TOPIC_META.length} tip ustalaşıldı`;
   document.getElementById('overview-fill').style.width = `${(count/TOPIC_META.length)*100}%`;
 }
+
+/* ---------- MOBILE NAV DRAWER ---------- */
+(function(){
+  const shell = document.getElementById('shell');
+  const toggle = document.getElementById('menuToggle');
+  const overlay = document.getElementById('sidebarOverlay');
+  if(!shell || !toggle || !overlay) return;
+
+  function openNav(){
+    shell.classList.add('nav-open');
+    toggle.setAttribute('aria-expanded','true');
+  }
+  function closeNav(){
+    shell.classList.remove('nav-open');
+    toggle.setAttribute('aria-expanded','false');
+  }
+  toggle.addEventListener('click', ()=>{
+    shell.classList.contains('nav-open') ? closeNav() : openNav();
+  });
+  overlay.addEventListener('click', closeNav);
+  document.querySelectorAll('.sidebar .nav-link').forEach(link=>{
+    link.addEventListener('click', closeNav);
+  });
+  window.addEventListener('resize', ()=>{
+    if(window.innerWidth > 900) closeNav();
+  });
+})();
 
 /* ---------- INIT ---------- */
 TOPIC_META.forEach((m,i)=> buildPracticeUI(i));
