@@ -1498,6 +1498,7 @@ function setupScratchPad(i){
   const wrap = canvas.closest('.scratch');
   const ctx = canvas.getContext('2d');
   let drawing = false, last = null;
+  let activePointerId = null;
   let toolMode = 'pen';
   let colorName = 'blue';
 
@@ -1522,16 +1523,7 @@ function setupScratchPad(i){
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  canvas.addEventListener('pointerdown', (e)=>{
-    if(window.getSelection) window.getSelection().removeAllRanges();
-    drawing = true;
-    last = localPos(e);
-    canvas.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  canvas.addEventListener('pointermove', (e)=>{
-    if(!drawing) return;
-    const p = localPos(e);
+  function drawStroke(from, to){
     ctx.beginPath();
     if(toolMode === 'eraser'){
       ctx.globalCompositeOperation = 'destination-out';
@@ -1541,20 +1533,46 @@ function setupScratchPad(i){
       ctx.strokeStyle = colorHex(colorName);
       ctx.lineWidth = 2.6;
     }
-    ctx.moveTo(last.x, last.y);
-    ctx.lineTo(p.x, p.y);
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
     ctx.stroke();
+  }
+
+  function preventTouchDefault(e){
+    e.preventDefault();
+  }
+  canvas.addEventListener('touchstart', preventTouchDefault, {passive:false});
+  canvas.addEventListener('touchmove', preventTouchDefault, {passive:false});
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    if(window.getSelection) window.getSelection().removeAllRanges();
+    activePointerId = e.pointerId;
+    drawing = true;
+    last = localPos(e);
+    try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('pointermove', (e)=>{
+    if(!drawing || e.pointerId !== activePointerId) return;
+    const p = localPos(e);
+    drawStroke(last, p);
     last = p;
     e.preventDefault();
-  });
+  }, {passive:false});
   function stop(e){
+    if(e && activePointerId !== null && e.pointerId !== activePointerId) return;
+    if(e && canvas.hasPointerCapture && canvas.hasPointerCapture(e.pointerId)){
+      try{ canvas.releasePointerCapture(e.pointerId); }catch(err){}
+    }
     drawing = false;
     last = null;
+    activePointerId = null;
     if(e) e.preventDefault();
   }
-  canvas.addEventListener('pointerup', stop);
-  canvas.addEventListener('pointerleave', stop);
-  canvas.addEventListener('pointercancel', stop);
+  canvas.addEventListener('pointerup', stop, {passive:false});
+  canvas.addEventListener('pointerleave', stop, {passive:false});
+  canvas.addEventListener('pointercancel', stop, {passive:false});
+  canvas.addEventListener('lostpointercapture', stop, {passive:false});
 
   const swatches = wrap.querySelectorAll('.swatch');
   const eraserBtn = wrap.querySelector('.eraser-btn');
