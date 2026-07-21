@@ -397,6 +397,7 @@
     transition:background .15s;
   }
   .p-row button:hover{background:var(--blue-deep);}
+  .p-row button:disabled{opacity:.58; cursor:not-allowed;}
   .p-row button.skip{
     background:transparent; color:var(--muted); border:1px solid var(--line);
   }
@@ -436,6 +437,39 @@
   .p-feedback.ok{color:var(--green);}
   .p-feedback.no{color:var(--rust);}
 
+  .review-toggle{
+    display:none;
+    margin-top:10px;
+    border:none;
+    background:transparent;
+    color:var(--blue);
+    font-family:'Source Sans 3',sans-serif;
+    font-size:13.5px;
+    font-weight:700;
+    padding:4px 0;
+    cursor:pointer;
+  }
+  .review-toggle.show{display:inline-flex;}
+  .review-list{
+    display:none;
+    margin-top:10px;
+    border-top:1px dashed var(--line);
+    padding-top:10px;
+  }
+  .review-list.open{display:block;}
+  .review-item{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-top:8px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  .review-item .q{color:var(--ink); margin-bottom:5px;}
+  .review-item b{color:var(--green);}
+  .review-item .mine{color:var(--rust); font-weight:700;}
+
   .p-progress-wrap{
     display:flex; align-items:center; gap:12px; margin-top:20px;
   }
@@ -456,7 +490,7 @@
 
   .practice.mastered{border-color:var(--green);}
   .practice.mastered::after{
-    content:"✓ Bu tipte 30 art arda doğru yaptın";
+    content:"✓ Bu tipte %85 başarı eşiğine ulaştın";
     display:block; margin-top:14px; font-size:13px; color:var(--green); font-weight:600;
   }
 
@@ -596,7 +630,7 @@
       <div class="eyebrow">Bir matematik eğitim uzmanının notları</div>
       <h1>Problemi çözemiyorsan, sorun matematik değil — tanıma sorunu.</h1>
       <p class="lead">TYT sözel problemlerinin neredeyse tamamı, aslında sadece 10 kalıptan birine girer. Her kalıbın kendine has bir "tanıma parmak izi" ve sabit bir çözüm iskeleti vardır. Bu rehber, sana her problemi sıfırdan icat etmek yerine, hangi kalıba girdiğini tanıyıp o kalıbın hazır iskeletini uygulamayı öğretir.</p>
-      <p class="lead" style="font-size:15px; margin-top:10px;">Her konunun altında <b>sınırsız pratik sorusu</b> üretilir. Bir tipte <b>30 soruyu art arda doğru</b> yapınca sıradaki tip açılır — sırayla ilerle.</p>
+      <p class="lead" style="font-size:15px; margin-top:10px;">Her konunun altında <b>sınırsız pratik sorusu</b> üretilir. Bir tipte en az 20 soru çözüp <b>%85 başarı</b> yakalayınca sıradaki tip açılır — sırayla ilerle.</p>
       <div class="overview">
         <span id="overview-text">0 / 10 tip ustalaşıldı</span>
         <div class="obar"><div class="obar-fill" id="overview-fill"></div></div>
@@ -1124,10 +1158,11 @@ Daire grafik  → bütünün PAYLARI (toplam = 360° ya da %100)
 <script>
 /* =========================================================
    PRATİK MOTORU — sonsuz, zihinden çözülebilir tam sayılı sorular
-   30 art arda doğru => bir sonraki tip açılır
+   En az 20 cevapta %85 başarı => bir sonraki tip açılır
    ========================================================= */
 
-const GOAL = 30;
+const MIN_ATTEMPTS = 20;
+const PASS_RATE = 85;
 
 const TOPIC_META = [
   {key:'oran-oranti', name:'Oran & Orantı'},
@@ -1459,10 +1494,13 @@ const GENERATORS = [
 
 /* ---------- STATE ---------- */
 const state = {
-  streak: new Array(10).fill(0),
+  answered: new Array(10).fill(0),
+  correct: new Array(10).fill(0),
   unlocked: new Array(10).fill(false),
   mastered: new Array(10).fill(false),
   current: new Array(10).fill(null),
+  submitted: new Array(10).fill(false),
+  history: Array.from({length:10}, () => []),
 };
 state.unlocked[0] = true;
 
@@ -1507,6 +1545,8 @@ function buildPracticeUI(i){
           <button class="skip" id="pskip-${i}" type="button">Soruyu Değiştir</button>
         </div>
         <div class="p-feedback" id="pfb-${i}"></div>
+        <button class="review-toggle" id="preview-${i}" type="button">Yanlış cevaplara bak</button>
+        <div class="review-list" id="plist-${i}"></div>
         <div class="p-progress-wrap">
           <span class="p-streak-label" id="pstreak-${i}"></span>
           <div class="p-bar"><div class="p-bar-fill" id="pbar-${i}"></div></div>
@@ -1515,7 +1555,7 @@ function buildPracticeUI(i){
       <div class="lock-overlay" id="plock-${i}" style="display:none;">
         <div class="ic">🔒</div>
         <div class="msg"><b>${TOPIC_META[i].name}</b> pratiğini açmak için önce
-        <b>${i>0?TOPIC_META[i-1].name:''}</b> bölümünde ${GOAL} soruyu art arda doğru yapmalısın.</div>
+        <b>${i>0?TOPIC_META[i-1].name:''}</b> bölümünde en az ${MIN_ATTEMPTS} soru çözüp %${PASS_RATE} başarıya ulaşmalısın.</div>
       </div>
     </div>
   `;
@@ -1526,6 +1566,7 @@ function buildPracticeUI(i){
     btn.addEventListener('click', ()=>pressAnswerKey(i, btn.dataset.key));
   });
   document.getElementById(`pskip-${i}`).addEventListener('click', ()=>{ newProblem(i); });
+  document.getElementById(`preview-${i}`).addEventListener('click', ()=>toggleReview(i));
 
   try{ setupScratchPad(i); } catch(err){ console.warn('scratch pad init failed for topic', i, err); }
   newProblem(i);
@@ -1647,14 +1688,18 @@ function setupScratchPad(i){
 function newProblem(i){
   const gen = GENERATORS[i];
   const problem = gen();
-  state.current[i] = problem.answer;
+  state.current[i] = problem;
+  state.submitted[i] = false;
   const qEl = document.getElementById(`pq-${i}`);
   if(qEl) qEl.innerHTML = problem.text;
   const inEl = document.getElementById(`pin-${i}`);
   if(inEl) inEl.value='';
+  const btn = document.getElementById(`pbtn-${i}`);
+  if(btn) btn.disabled = false;
   const fb = document.getElementById(`pfb-${i}`);
   if(fb){ fb.textContent=''; fb.className='p-feedback'; }
   if(SCRATCH[i]) SCRATCH[i].clear();
+  updateScoreUI(i);
 }
 
 function pressAnswerKey(i, key){
@@ -1673,47 +1718,109 @@ function readAnswerValue(input){
   return parseFloat(input.trim().replace(',', '.'));
 }
 
+function fmtAnswer(value){
+  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2))).replace('.', ',');
+}
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[ch]));
+}
+
+function accuracy(i){
+  if(state.answered[i] === 0) return 0;
+  return Math.round((state.correct[i] / state.answered[i]) * 100);
+}
+
+function addHistory(i, mine, isCorrect){
+  const problem = state.current[i];
+  state.history[i].unshift({
+    question: problem.text,
+    mine,
+    answer: problem.answer,
+    correct: isCorrect
+  });
+  state.history[i] = state.history[i].slice(0, 12);
+  renderReview(i);
+}
+
+function renderReview(i){
+  const btn = document.getElementById(`preview-${i}`);
+  const list = document.getElementById(`plist-${i}`);
+  if(!btn || !list) return;
+  const wrong = state.history[i].filter(item => !item.correct);
+  btn.classList.toggle('show', wrong.length > 0);
+  btn.textContent = `Yanlış cevaplara bak (${wrong.length})`;
+  list.innerHTML = wrong.map(item => `
+    <div class="review-item">
+      <div class="q">${item.question}</div>
+      <div>Senin cevabın: <span class="mine">${escapeHtml(item.mine)}</span> · Doğru cevap: <b>${fmtAnswer(item.answer)}</b></div>
+    </div>
+  `).join('');
+  if(wrong.length === 0) list.classList.remove('open');
+}
+
+function toggleReview(i){
+  const list = document.getElementById(`plist-${i}`);
+  if(list) list.classList.toggle('open');
+}
+
 function checkAnswer(i){
+  if(state.submitted[i]) return;
   const inEl = document.getElementById(`pin-${i}`);
   const fb = document.getElementById(`pfb-${i}`);
   if(!inEl.value.trim()){ return; }
   const val = readAnswerValue(inEl.value);
   if(Number.isNaN(val)) return;
-  const correct = Math.abs(val - state.current[i]) < 1e-9;
+  const problem = state.current[i];
+  const isCorrect = Math.abs(val - problem.answer) < 1e-9;
+  const userAnswer = inEl.value.trim();
+  const btn = document.getElementById(`pbtn-${i}`);
+  state.submitted[i] = true;
+  if(btn) btn.disabled = true;
 
-  if(correct){
-    state.streak[i] = Math.min(state.streak[i]+1, GOAL);
+  state.answered[i] += 1;
+  if(isCorrect) state.correct[i] += 1;
+  addHistory(i, userAnswer, isCorrect);
+
+  if(isCorrect){
     fb.textContent = '✓ Doğru!';
     fb.className = 'p-feedback ok';
-    if(state.streak[i] >= GOAL && !state.mastered[i]){
-      state.mastered[i] = true;
-      document.getElementById(`practice-${i}`).classList.add('mastered');
-      if(i+1 < TOPIC_META.length && !state.unlocked[i+1]){
-        state.unlocked[i+1] = true;
-        toast(`🎉 "${TOPIC_META[i].name}" tamamlandı! "${TOPIC_META[i+1].name}" bölümü açıldı.`);
-        buildPracticeUI(i+1);
-      } else {
-        toast(`🎉 "${TOPIC_META[i].name}" bölümünü ustalaştın!`);
-      }
-    }
   } else {
-    state.streak[i] = 0;
-    fb.textContent = `✗ Yanlış — doğru cevap: ${state.current[i]}`;
+    fb.textContent = `✗ Yanlış — doğru cevap: ${fmtAnswer(problem.answer)}`;
     fb.className = 'p-feedback no';
   }
 
-  updateStreakUI(i);
+  if(state.answered[i] >= MIN_ATTEMPTS && accuracy(i) >= PASS_RATE && !state.mastered[i]){
+    state.mastered[i] = true;
+    document.getElementById(`practice-${i}`).classList.add('mastered');
+    if(i+1 < TOPIC_META.length && !state.unlocked[i+1]){
+      state.unlocked[i+1] = true;
+      toast(`🎉 "${TOPIC_META[i].name}" tamamlandı! "${TOPIC_META[i+1].name}" bölümü açıldı.`);
+      buildPracticeUI(i+1);
+    } else {
+      toast(`🎉 "${TOPIC_META[i].name}" bölümünü ustalaştın!`);
+    }
+  }
+
+  updateScoreUI(i);
   updateBadges();
   updateOverview();
-  setTimeout(()=>newProblem(i), correct ? 650 : 1500);
+  setTimeout(()=>newProblem(i), isCorrect ? 650 : 2300);
 }
 
-function updateStreakUI(i){
+function updateScoreUI(i){
   const label = document.getElementById(`pstreak-${i}`);
   const bar = document.getElementById(`pbar-${i}`);
   if(!label||!bar) return;
-  label.textContent = `🔥 ${state.streak[i]} / ${GOAL} ardışık doğru`;
-  bar.style.width = `${Math.min(100,(state.streak[i]/GOAL)*100)}%`;
+  const pct = accuracy(i);
+  label.textContent = `✓ ${state.correct[i]} / ${state.answered[i]} doğru · %${pct} başarı`;
+  bar.style.width = `${Math.min(100,pct)}%`;
 }
 
 function refreshLockUI(i){
@@ -1734,7 +1841,7 @@ function updateBadges(){
     const b = document.querySelector(`.badge[data-badge="${i}"]`);
     if(!b) return;
     if(state.mastered[i]){ b.textContent='✓'; b.className='badge done'; }
-    else if(state.unlocked[i]){ b.textContent = state.streak[i]>0 ? `${state.streak[i]}/${GOAL}` : ''; b.className='badge active'; }
+    else if(state.unlocked[i]){ b.textContent = state.answered[i]>0 ? `%${accuracy(i)}` : ''; b.className='badge active'; }
     else { b.textContent='🔒'; b.className='badge lock'; }
   });
 }
